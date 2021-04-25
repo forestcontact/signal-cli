@@ -161,6 +161,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.asamk.signal.manager.config.ServiceConfig.capabilities;
 import static org.asamk.signal.manager.ServiceConfig.CDS_MRENCLAVE;
 import static org.asamk.signal.manager.ServiceConfig.capabilities;
 import static org.asamk.signal.util.ErrorUtils.handleAssertionError;
