@@ -90,10 +90,16 @@ class InputReader implements Runnable {
                     } else if (command.commandName.equals("updateGroup")) {
                         String maybeNewGroup = new UpdateGroupCommand().updateGroup(detailNamespace, signal);
                         logger.info("{\"maybeGroup\":\"{}\"}", maybeNewGroup); // disgusting
-
-                    } /* else if (command.commandName == "sendTyping") {
-        			 getMessageSender().sendTyping(signalServiceAddress?, ....)
-        			}*/
+                    } else if (command.commandName.equals("cli")) {
+                        // how exactly the namespace works is tricky
+                        // properly you probably just want to union it with StdioCommand's ns but for our purposes output: json is simpler
+                        // there does need to be some attention to an ergonomic-ish format
+                        String commandKey = detailNamespace.getString("command");
+                        LocalCommand commandObject = (LocalCommand) Commands.getCommand(commandKey);
+                        if (commandObject != null) {
+                            commandObject.handleCommand(detailNamespace, manager); // updateGroup needs to have a json output
+                        }
+                    }
                 }
 
             } catch (IOException | CommandException e) {
