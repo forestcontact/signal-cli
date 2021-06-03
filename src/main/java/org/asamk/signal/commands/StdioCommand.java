@@ -1,5 +1,6 @@
 package org.asamk.signal.commands;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -7,15 +8,16 @@ import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 
+import org.asamk.Signal;
 import org.asamk.signal.JsonReceiveMessageHandler;
-import org.asamk.signal.JsonWriter;
 import org.asamk.signal.OutputType;
 import org.asamk.signal.ReceiveMessageHandler;
+import org.asamk.signal.commands.exceptions.CommandException;
+import org.asamk.signal.dbus.DbusSignalImpl;
 import org.asamk.signal.manager.AttachmentInvalidException;
 import org.asamk.signal.manager.Manager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.whispersystems.signalservice.api.push.exceptions.EncapsulatedExceptions;
 import org.whispersystems.signalservice.api.util.InvalidNumberException;
 
 import java.io.BufferedReader;
@@ -23,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -40,10 +43,12 @@ class InputReader implements Runnable {
     private final static Logger logger = LoggerFactory.getLogger(InputReader.class);
 
     private volatile boolean alive = true;
-    private final Manager m;
+    private final Manager manager;
+    private final Signal signal;
 
-    InputReader(final Manager m) {
-        this.m = m;
+    InputReader(final Manager manager) {
+        this.manager = manager;
+        this.signal = new DbusSignalImpl(manager);
     }
 
     public void terminate() {
@@ -59,8 +64,11 @@ class InputReader implements Runnable {
                 String in = br.readLine();
                 if (in != null) {
                     JsonInterface command = jsonProcessor.readValue(in, JsonInterface.class);
+                    Map<String, Object> details = jsonProcessor.convertValue(command, new TypeReference<Map<String, Object>>(){});
+                    Namespace detailNamespace = new Namespace(details);
+                    // wrap handleCommand...
                     if (command.commandName.equals("sendMessage")) {
-                        List<String> recipients = new ArrayList<String>();
+                        List<String> recipients = new ArrayList<>();
                         recipients.add(command.recipient);
                         List<String> attachments = new ArrayList<>();
                         if (command.details != null && command.details.has("attachments")) {
@@ -71,29 +79,33 @@ class InputReader implements Runnable {
                             });
                         }
                         try {
-                            // verbosity flag? better yet, json acknowledgement with timestamp or message id?
-                            this.m.sendMessage(command.content, attachments, recipients);
-                            logger.info("sentMessage '" + command.content + "' to " + command.recipient);
+                            // verbosity flag? better yet, json acknowledgement with timestamp or message id? // working on it
+                            this.manager.sendMessage(command.content, attachments, recipients);
+                            String ack = "{\"sent\": true, \"content\": \"" + command.content + "\", \"recipient\": \"" + command.recipient + "\"}";
+                            logger.info(ack);
                         } catch (AssertionError | AttachmentInvalidException | InvalidNumberException e) {
                             logger.error("Error in sending message", e);
                             logger.error(e.getMessage(), e);
                         }
-                    } /* elif (command.commandName == "sendTyping") {
+                    } else if (command.commandName.equals("updateGroup")) {
+                        String maybeNewGroup = new UpdateGroupCommand().updateGroup(detailNamespace, signal);
+                        logger.info("{\"maybeGroup\":\"{}\"}", maybeNewGroup); // disgusting
+
+                    } /* else if (command.commandName == "sendTyping") {
         			 getMessageSender().sendTyping(signalServiceAddress?, ....)
         			}*/
                 }
 
-            } catch (IOException e) {
-                System.err.println(e);
+            } catch (IOException | CommandException e) {
+                System.err.println(e.fillInStackTrace().toString());
                 alive = false;
             }
-
         }
     }
 }
 
 public class StdioCommand implements LocalCommand {
-    private final static Logger logger = LoggerFactory.getLogger(StdioCommand.class);
+    //private final static Logger logger = LoggerFactory.getLogger(StdioCommand.class);
 
     @Override
     public void attachToSubparser(final Subparser subparser) {

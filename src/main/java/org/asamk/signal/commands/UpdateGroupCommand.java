@@ -34,7 +34,18 @@ public class UpdateGroupCommand implements DbusCommand {
 
     @Override
     public void handleCommand(final Namespace ns, final Signal signal) throws CommandException {
+        String group = updateGroup(ns, signal);
         final var writer = new PlainTextWriterImpl(System.out);
+        if (group.length() != 0) {
+            writer.println("Created new group: \"{}\"", group);
+        }
+    }
+
+    /**
+     * @return the new group id or ""
+     */
+    public String updateGroup(final Namespace ns, final Signal signal) throws CommandException {
+
         byte[] groupId = null;
         if (ns.getString("group") != null) {
             try {
@@ -64,9 +75,7 @@ public class UpdateGroupCommand implements DbusCommand {
 
         try {
             var newGroupId = signal.updateGroup(groupId, groupName, groupMembers, groupAvatar);
-            if (groupId.length != newGroupId.length) {
-                writer.println("Created new group: \"{}\"", Base64.getEncoder().encodeToString(newGroupId));
-            }
+            return Base64.getEncoder().encodeToString(newGroupId);
         } catch (AssertionError e) {
             handleAssertionError(e);
             throw e;
