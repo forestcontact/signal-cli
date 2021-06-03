@@ -1,54 +1,37 @@
 package org.asamk.signal.commands;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 
-import org.asamk.Signal;
 import org.asamk.signal.JsonReceiveMessageHandler;
 import org.asamk.signal.OutputType;
 import org.asamk.signal.ReceiveMessageHandler;
-import org.asamk.signal.commands.exceptions.CommandException;
-import org.asamk.signal.dbus.DbusSignalImpl;
-import org.asamk.signal.manager.AttachmentInvalidException;
 import org.asamk.signal.manager.Manager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.whispersystems.signalservice.api.util.InvalidNumberException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.asamk.signal.util.ErrorUtils.handleAssertionError;
 
-class JsonInterface {
-
-    public String commandName;
-    public String recipient;
-    public String content;
-    public JsonNode details;
-}
 
 class InputReader implements Runnable {
     private final static Logger logger = LoggerFactory.getLogger(InputReader.class);
 
     private volatile boolean alive = true;
     private final Manager manager;
-    private final Signal signal;
 
     InputReader(final Manager manager) {
         this.manager = manager;
-        this.signal = new DbusSignalImpl(manager);
     }
 
     public void terminate() {
@@ -59,52 +42,24 @@ class InputReader implements Runnable {
     public void run() {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         ObjectMapper jsonProcessor = new ObjectMapper();
+        TypeReference<Map<String, Object>> inputType = new TypeReference<>() {};
         while (alive) {
             try {
-                String in = br.readLine();
-                if (in != null) {
-                    JsonInterface command = jsonProcessor.readValue(in, JsonInterface.class);
-                    Map<String, Object> details = jsonProcessor.convertValue(command, new TypeReference<Map<String, Object>>(){});
-                    Namespace detailNamespace = new Namespace(details);
-                    // wrap handleCommand...
-                    if (command.commandName.equals("sendMessage")) {
-                        List<String> recipients = new ArrayList<>();
-                        recipients.add(command.recipient);
-                        List<String> attachments = new ArrayList<>();
-                        if (command.details != null && command.details.has("attachments")) {
-                            command.details.get("attachments").forEach(attachment -> {
-                                if (attachment.isTextual()) {
-                                    attachments.add(attachment.asText());
-                                }
-                            });
-                        }
-                        try {
-                            // verbosity flag? better yet, json acknowledgement with timestamp or message id? // working on it
-                            this.manager.sendMessage(command.content, attachments, recipients);
-                            String ack = "{\"sent\": true, \"content\": \"" + command.content + "\", \"recipient\": \"" + command.recipient + "\"}";
-                            logger.info(ack);
-                        } catch (AssertionError | AttachmentInvalidException | InvalidNumberException e) {
-                            logger.error("Error in sending message", e);
-                            logger.error(e.getMessage(), e);
-                        }
-                    } else if (command.commandName.equals("updateGroup")) {
-                        String maybeNewGroup = new UpdateGroupCommand().updateGroup(detailNamespace, signal);
-                        logger.info("{\"maybeGroup\":\"{}\"}", maybeNewGroup); // disgusting
-                    } else if (command.commandName.equals("cli")) {
-                        // how exactly the namespace works is tricky
-                        // properly you probably just want to union it with StdioCommand's ns but for our purposes output: json is simpler
-                        // there does need to be some attention to an ergonomic-ish format
-                        String commandKey = detailNamespace.getString("command");
-                        LocalCommand commandObject = (LocalCommand) Commands.getCommand(commandKey);
-                        if (commandObject != null) {
-                            commandObject.handleCommand(detailNamespace, manager); // updateGroup needs to have a json output
-                        }
-                    }
+                String input = br.readLine();
+                if (input != null) {
+                    new Namespace(Map.of("a", "b"));
+                    Map<String, Object> commandMap = jsonProcessor.readValue(input, inputType);
+                    Namespace commandNamespace = new Namespace(commandMap);
+                    // ideally, union with our namespace, or just add output=json
+                    String commandKey = commandNamespace.getString("command");
+                    LocalCommand commandObject = (LocalCommand) Commands.getCommand(commandKey);
+                    assert commandObject != null;
+                    commandObject.handleCommand(commandNamespace, manager); // updateGroup needs to have a json output
                 }
-
-            } catch (IOException | CommandException e) {
-                System.err.println(e.fillInStackTrace().toString());
-                alive = false;
+            } catch (Exception e) {
+                e.printStackTrace(System.err);
+                //logger.error("{\"error\":\"{}\"}", error); // wrong...
+                // alive = false; // there are some exceptions where we wouldn't want to keep going but idk what they are
             }
         }
     }
