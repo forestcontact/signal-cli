@@ -50,7 +50,7 @@ public class SendCommand implements DbusCommand {
         final var isEndSession = ns.getBoolean("endsession");
         final var groupIdString = ns.getString("group");
         final var isNoteToSelf = ns.getBoolean("note_to_self");
-
+        logger.info("handling send. signal: {}", signal);
         final var noRecipients = recipients == null || recipients.isEmpty();
         if ((noRecipients && isEndSession) || (noRecipients && groupIdString == null && !isNoteToSelf)) {
             throw new UserErrorException("No recipients given");
@@ -58,6 +58,7 @@ public class SendCommand implements DbusCommand {
         if (!noRecipients && groupIdString != null) {
             throw new UserErrorException("You cannot specify recipients by phone number and groups at the same time");
         }
+        logger.info("norecipients {}, noteToSelf {}", noRecipients, isNoteToSelf);
         if (!noRecipients && isNoteToSelf) {
             throw new UserErrorException(
                     "You cannot specify recipients by phone number and not to self at the same time");
