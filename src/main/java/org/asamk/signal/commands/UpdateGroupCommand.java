@@ -4,6 +4,8 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 
 import org.asamk.Signal;
+import org.asamk.signal.JsonWriter;
+import org.asamk.signal.OutputType;
 import org.asamk.signal.PlainTextWriterImpl;
 import org.asamk.signal.commands.exceptions.CommandException;
 import org.asamk.signal.commands.exceptions.UnexpectedErrorException;
@@ -17,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 import static org.asamk.signal.util.ErrorUtils.handleAssertionError;
 
@@ -34,18 +37,7 @@ public class UpdateGroupCommand implements DbusCommand {
 
     @Override
     public void handleCommand(final Namespace ns, final Signal signal) throws CommandException {
-        String group = updateGroup(ns, signal);
         final var writer = new PlainTextWriterImpl(System.out);
-        if (group.length() != 0) {
-            writer.println("Created new group: \"{}\"", group);
-        }
-    }
-
-    /**
-     * @return the new group id or ""
-     */
-    public String updateGroup(final Namespace ns, final Signal signal) throws CommandException {
-
         byte[] groupId = null;
         if (ns.getString("group") != null) {
             try {
@@ -73,9 +65,24 @@ public class UpdateGroupCommand implements DbusCommand {
             groupAvatar = "";
         }
 
+        var inJson = ns.get("output") == OutputType.JSON || ns.getBoolean("json");
+
+        // TODO delete later when "json" variable is removed
+        if (ns.getBoolean("json")) {
+            logger.warn("\"--json\" option has been deprecated, please use the global \"--output=json\" instead.");
+        }
+
         try {
             var newGroupId = signal.updateGroup(groupId, groupName, groupMembers, groupAvatar);
-            return Base64.getEncoder().encodeToString(newGroupId);
+            if (groupId.length != newGroupId.length) {
+                String encodedGroup = Base64.getEncoder().encodeToString(newGroupId);
+                if (inJson) {
+                    final var jsonWriter = new JsonWriter(System.out);
+                    jsonWriter.write(Map.of("group", encodedGroup));
+                } else {
+                    writer.println("Created new group: \"{}\"", encodedGroup);
+                }
+            }
         } catch (AssertionError e) {
             handleAssertionError(e);
             throw e;

@@ -8,30 +8,50 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 
 import org.asamk.signal.JsonReceiveMessageHandler;
+import org.asamk.signal.JsonWriter;
 import org.asamk.signal.OutputType;
 import org.asamk.signal.ReceiveMessageHandler;
 import org.asamk.signal.manager.Manager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.asamk.signal.util.ErrorUtils.handleAssertionError;
 
+class NamespaceDefaultingToFalse extends Namespace {
+
+    public NamespaceDefaultingToFalse(final Map<String, Object> attrs) {
+        super(attrs);
+    }
+
+    @Override
+    public Boolean getBoolean(String dest) {
+        Boolean maybeGotten = this.get(dest);
+        if (maybeGotten == null) {
+            maybeGotten = false;
+        }
+        return maybeGotten;
+    }
+
+}
 
 class InputReader implements Runnable {
-    private final static Logger logger = LoggerFactory.getLogger(InputReader.class);
-
     private volatile boolean alive = true;
     private final Manager manager;
-
-    InputReader(final Manager manager) {
+    private final Map<String, Object> ourNamespace;
+    private final Boolean inJson;
+    InputReader(Namespace ns, final Manager manager, Boolean inJson) {
+        this.ourNamespace = ns.getAttrs();
         this.manager = manager;
+        this.inJson = inJson;
+
     }
 
     public void terminate() {
@@ -42,23 +62,29 @@ class InputReader implements Runnable {
     public void run() {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         ObjectMapper jsonProcessor = new ObjectMapper();
+        JsonWriter jsonWriter = new JsonWriter(System.out);
         TypeReference<Map<String, Object>> inputType = new TypeReference<>() {};
         while (alive) {
             try {
                 String input = br.readLine();
                 if (input != null) {
-                    new Namespace(Map.of("a", "b"));
                     Map<String, Object> commandMap = jsonProcessor.readValue(input, inputType);
-                    Namespace commandNamespace = new Namespace(commandMap);
-                    // ideally, union with our namespace, or just add output=json
+                    HashMap<String, Object> mergedMap = new HashMap<>(ourNamespace);
+                    mergedMap.putAll(commandMap);
+                    Namespace commandNamespace = new NamespaceDefaultingToFalse(mergedMap);
                     String commandKey = commandNamespace.getString("command");
                     LocalCommand commandObject = (LocalCommand) Commands.getCommand(commandKey);
                     assert commandObject != null;
                     commandObject.handleCommand(commandNamespace, manager); // updateGroup needs to have a json output
                 }
             } catch (Exception e) {
-                e.printStackTrace(System.err);
-                //logger.error("{\"error\":\"{}\"}", error); // wrong...
+                if (this.inJson) {
+                    StringWriter errors = new StringWriter();
+                    e.printStackTrace(new PrintWriter(errors));
+                    jsonWriter.write(Map.of("error", e.toString(), "traceback", errors.toString()));
+                } else {
+                    e.printStackTrace(System.err);
+                }
                 // alive = false; // there are some exceptions where we wouldn't want to keep going but idk what they are
             }
         }
@@ -87,7 +113,7 @@ public class StdioCommand implements LocalCommand {
     public void handleCommand(final Namespace ns, final Manager m) {
         var inJson = ns.get("output") == OutputType.JSON || ns.getBoolean("json");
         boolean ignoreAttachments = ns.getBoolean("ignore_attachments");
-        InputReader reader = new InputReader(m);
+        InputReader reader = new InputReader(ns, m, inJson);
         Thread readerThread = new Thread(reader);
         readerThread.start();
         try {

@@ -46,10 +46,14 @@ public class SendCommand implements DbusCommand {
 
     @Override
     public void handleCommand(final Namespace ns, final Signal signal) throws CommandException {
+        System.out.println(ns);
         final List<String> recipients = ns.getList("recipient");
         final var isEndSession = ns.getBoolean("endsession");
         final var groupIdString = ns.getString("group");
-        final var isNoteToSelf = ns.getBoolean("note_to_self");
+        var isNoteToSelf = ns.getBoolean("note_to_self") ;
+        if (isNoteToSelf == null) {
+            isNoteToSelf = false;
+        }
         logger.info("handling send. signal: {}", signal);
         final var noRecipients = recipients == null || recipients.isEmpty();
         if ((noRecipients && isEndSession) || (noRecipients && groupIdString == null && !isNoteToSelf)) {

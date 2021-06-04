@@ -12,6 +12,7 @@ public interface DbusCommand extends LocalCommand {
     void handleCommand(Namespace ns, Signal signal) throws CommandException;
 
     default void handleCommand(final Namespace ns, final Manager m) throws CommandException {
+        System.err.println("creating a dbus interface from manager");
         handleCommand(ns, new DbusSignalImpl(m));
     }
 }
