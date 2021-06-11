@@ -46,7 +46,7 @@ public class SendCommand implements DbusCommand {
 
     @Override
     public void handleCommand(final Namespace ns, final Signal signal) throws CommandException {
-        System.out.println(ns);
+        System.out.println("handling send command");
         final List<String> recipients = ns.getList("recipient");
         final var isEndSession = ns.getBoolean("endsession");
         final var groupIdString = ns.getString("group");
@@ -54,7 +54,6 @@ public class SendCommand implements DbusCommand {
         if (isNoteToSelf == null) {
             isNoteToSelf = false;
         }
-        logger.info("handling send. signal: {}", signal);
         final var noRecipients = recipients == null || recipients.isEmpty();
         if ((noRecipients && isEndSession) || (noRecipients && groupIdString == null && !isNoteToSelf)) {
             throw new UserErrorException("No recipients given");
@@ -62,7 +61,7 @@ public class SendCommand implements DbusCommand {
         if (!noRecipients && groupIdString != null) {
             throw new UserErrorException("You cannot specify recipients by phone number and groups at the same time");
         }
-        logger.info("norecipients {}, noteToSelf {}", noRecipients, isNoteToSelf);
+
         if (!noRecipients && isNoteToSelf) {
             throw new UserErrorException(
                     "You cannot specify recipients by phone number and not to self at the same time");
@@ -107,8 +106,10 @@ public class SendCommand implements DbusCommand {
             }
 
             try {
+
                 var timestamp = signal.sendGroupMessage(messageText, attachments, groupId);
                 writer.println("{}", timestamp);
+                // this needs to return json
                 return;
             } catch (AssertionError e) {
                 handleAssertionError(e);
@@ -132,10 +133,11 @@ public class SendCommand implements DbusCommand {
                 throw new UnexpectedErrorException("Failed to send note to self message: " + e.getMessage());
             }
         }
-
+        writer.println("about to send nongroup msg");
         try {
+            System.err.println(signal.toString());
             var timestamp = signal.sendMessage(messageText, attachments, recipients);
-            writer.println("{}", timestamp);
+            writer.println("{}", timestamp); // needs to be json
         } catch (AssertionError e) {
             handleAssertionError(e);
             throw e;
