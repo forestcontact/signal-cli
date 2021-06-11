@@ -46,14 +46,11 @@ public class SendCommand implements DbusCommand {
 
     @Override
     public void handleCommand(final Namespace ns, final Signal signal) throws CommandException {
-        System.out.println("handling send command");
         final List<String> recipients = ns.getList("recipient");
         final var isEndSession = ns.getBoolean("endsession");
         final var groupIdString = ns.getString("group");
-        var isNoteToSelf = ns.getBoolean("note_to_self") ;
-        if (isNoteToSelf == null) {
-            isNoteToSelf = false;
-        }
+        final var isNoteToSelf = ns.getBoolean("note_to_self");
+
         final var noRecipients = recipients == null || recipients.isEmpty();
         if ((noRecipients && isEndSession) || (noRecipients && groupIdString == null && !isNoteToSelf)) {
             throw new UserErrorException("No recipients given");
@@ -61,7 +58,6 @@ public class SendCommand implements DbusCommand {
         if (!noRecipients && groupIdString != null) {
             throw new UserErrorException("You cannot specify recipients by phone number and groups at the same time");
         }
-
         if (!noRecipients && isNoteToSelf) {
             throw new UserErrorException(
                     "You cannot specify recipients by phone number and not to self at the same time");
@@ -133,11 +129,10 @@ public class SendCommand implements DbusCommand {
                 throw new UnexpectedErrorException("Failed to send note to self message: " + e.getMessage());
             }
         }
-        writer.println("about to send nongroup msg");
+
         try {
-            System.err.println(signal.toString());
             var timestamp = signal.sendMessage(messageText, attachments, recipients);
-            writer.println("{}", timestamp); // needs to be json
+            writer.println("{}", timestamp); // needs to offer json
         } catch (AssertionError e) {
             handleAssertionError(e);
             throw e;
