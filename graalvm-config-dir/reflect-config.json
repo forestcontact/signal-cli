@@ -1750,6 +1750,15 @@
   ]
 },
 {
+  "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$GroupContext",
+  "fields":[
+    {"name":"bitField0_", "allowUnsafeAccess":true},
+    {"name":"groupChange_", "allowUnsafeAccess":true},
+    {"name":"masterKey_", "allowUnsafeAccess":true},
+    {"name":"revision_", "allowUnsafeAccess":true}
+  ]
+},
+{
   "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$GroupContextV2",
   "fields":[
     {"name":"bitField0_", "allowUnsafeAccess":true}, 

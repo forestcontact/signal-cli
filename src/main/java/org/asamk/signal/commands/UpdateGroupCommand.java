@@ -78,7 +78,7 @@ public class UpdateGroupCommand implements DbusCommand {
                 String encodedGroup = Base64.getEncoder().encodeToString(newGroupId);
                 if (inJson) {
                     final var jsonWriter = new JsonWriter(System.out);
-                    jsonWriter.write(Map.of("group", encodedGroup));
+                    jsonWriter.write(Map.of("group", encodedGroup, "members", groupMembers, "name", groupName));
                 } else {
                     writer.println("Created new group: \"{}\"", encodedGroup);
                 }
