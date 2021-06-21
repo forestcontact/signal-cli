@@ -1228,6 +1228,7 @@ public class Manager implements Closeable {
         try {
             messageSender.sendMessage(message, unidentifiedAccessHelper.getAccessForSync());
         } catch (UntrustedIdentityException e) {
+            
             if (e.getIdentityKey() != null) {
                 account.getSignalProtocolStore()
                         .saveIdentity(resolveSignalServiceAddress(e.getIdentifier()),

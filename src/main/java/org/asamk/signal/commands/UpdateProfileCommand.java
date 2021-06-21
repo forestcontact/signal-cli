@@ -4,6 +4,8 @@ import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 
+import org.asamk.signal.JsonWriter;
+import org.asamk.signal.OutputType;
 import org.asamk.signal.commands.exceptions.CommandException;
 import org.asamk.signal.commands.exceptions.IOErrorException;
 import org.asamk.signal.manager.Manager;
@@ -11,6 +13,7 @@ import org.whispersystems.libsignal.util.guava.Optional;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 public class UpdateProfileCommand implements LocalCommand {
 
@@ -41,7 +44,15 @@ public class UpdateProfileCommand implements LocalCommand {
 
         try {
             m.setProfile(name, about, aboutEmoji, avatarFile);
+            if (ns.get("output") == OutputType.JSON || ns.getBoolean("json")) {
+                final var jsonWriter = new JsonWriter(System.out);
+                jsonWriter.write(Map.of("status", "success"));
+            }
         } catch (IOException e) {
+            if (ns.get("output") == OutputType.JSON || ns.getBoolean("json")) {
+                final var jsonWriter = new JsonWriter(System.out);
+                jsonWriter.write(Map.of("status", "failure"));
+            }
             throw new IOErrorException("Update profile error: " + e.getMessage());
         }
     }
