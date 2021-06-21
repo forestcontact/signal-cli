@@ -1228,7 +1228,7 @@ public class Manager implements Closeable {
         try {
             messageSender.sendMessage(message, unidentifiedAccessHelper.getAccessForSync());
         } catch (UntrustedIdentityException e) {
-            
+
             if (e.getIdentityKey() != null) {
                 account.getSignalProtocolStore()
                         .saveIdentity(resolveSignalServiceAddress(e.getIdentifier()),
@@ -1777,13 +1777,13 @@ public class Manager implements Closeable {
                 }
             }
             account.save();
-            if (isMessageBlocked(envelope, content)) {
-                logger.info("Ignoring a message from blocked user/group: {}", envelope.getTimestamp());
-            } else if (isNotAGroupMember(envelope, content)) {
-                logger.info("Ignoring a message from a non group member: {}", envelope.getTimestamp());
-            } else {
+//            if (isMessageBlocked(envelope, content)) {
+//                logger.info("Ignoring a message from blocked user/group: {}", envelope.getTimestamp());
+//            } else if (isNotAGroupMember(envelope, content)) {
+//                logger.info("Ignoring a message from a non group member: {}", envelope.getTimestamp());
+//            } else {
                 handler.handleMessage(envelope, content, exception);
-            }
+//            }
             if (!(exception instanceof org.whispersystems.libsignal.UntrustedIdentityException)) {
                 if (cachedMessage[0] != null) {
                     cachedMessage[0].delete();
