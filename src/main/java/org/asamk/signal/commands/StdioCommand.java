@@ -75,7 +75,7 @@ class InputReader implements Runnable {
                     String commandKey = commandNamespace.getString("command");
                     LocalCommand commandObject = (LocalCommand) Commands.getCommand(commandKey);
                     assert commandObject != null;
-                    commandObject.handleCommand(commandNamespace, manager); // updateGroup needs to have a json output
+                    commandObject.handleCommand(commandNamespace, manager);
                 }
             } catch (Exception e) {
                 if (this.inJson) {
