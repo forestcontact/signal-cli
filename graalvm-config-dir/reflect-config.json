@@ -511,11 +511,16 @@
 },
 {
   "name":"org.asamk.signal.manager.storage.profiles.ProfileStore$ProfileStoreDeserializer",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"org.asamk.signal.manager.storage.profiles.ProfileStore$ProfileStoreSerializer",
+  "allDeclaredFields":true,
   "allDeclaredMethods":true,
+  "allDeclaredConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -1753,10 +1758,10 @@
 {
   "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$GroupContext",
   "fields":[
-    {"name":"bitField0_", "allowUnsafeAccess":true},
-    {"name":"groupChange_", "allowUnsafeAccess":true},
-    {"name":"masterKey_", "allowUnsafeAccess":true},
-    {"name":"revision_", "allowUnsafeAccess":true}
+    {"name":"id_", "allowUnsafeAccess":true},
+    {"name":"name_", "allowUnsafeAccess":true},
+    {"name":"membersE164_", "allowUnsafeAccess":true},
+    {"name":"members_", "allowUnsafeAccess":true}
   ]
 },
 {
