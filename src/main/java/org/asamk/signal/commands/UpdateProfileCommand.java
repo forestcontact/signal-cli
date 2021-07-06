@@ -9,11 +9,14 @@ import org.asamk.signal.OutputType;
 import org.asamk.signal.commands.exceptions.CommandException;
 import org.asamk.signal.commands.exceptions.IOErrorException;
 import org.asamk.signal.manager.Manager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.whispersystems.libsignal.util.guava.Optional;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 public class UpdateProfileCommand implements LocalCommand {
 
@@ -29,6 +32,12 @@ public class UpdateProfileCommand implements LocalCommand {
 
         subparser.help("Set a name, about and avatar image for the user profile");
     }
+    private final static Logger logger = LoggerFactory.getLogger(UpdateProfileCommand.class);
+
+    @Override
+    public Set<OutputType> getSupportedOutputTypes() {
+        return Set.of(OutputType.PLAIN_TEXT, OutputType.JSON);
+    }
 
     @Override
     public void handleCommand(final Namespace ns, final Manager m) throws CommandException {
@@ -42,14 +51,22 @@ public class UpdateProfileCommand implements LocalCommand {
                 ? Optional.absent()
                 : avatarPath == null ? null : Optional.of(new File(avatarPath));
 
+
+        var inJson = ns.get("output") == OutputType.JSON || ns.getBoolean("json");
+
+        // TODO delete later when "json" variable is removed
+        if (ns.getBoolean("json")) {
+            logger.warn("\"--json\" option has been deprecated, please use the global \"--output=json\" instead.");
+        }
+
         try {
             m.setProfile(name, about, aboutEmoji, avatarFile);
-            if (ns.get("output") == OutputType.JSON || ns.getBoolean("json")) {
+            if (inJson) {
                 final var jsonWriter = new JsonWriter(System.out);
                 jsonWriter.write(Map.of("status", "success"));
             }
         } catch (IOException e) {
-            if (ns.get("output") == OutputType.JSON || ns.getBoolean("json")) {
+            if (inJson) {
                 final var jsonWriter = new JsonWriter(System.out);
                 jsonWriter.write(Map.of("status", "failure"));
             }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.asamk.signal.util.ErrorUtils.handleAssertionError;
 
@@ -33,6 +34,11 @@ public class UpdateGroupCommand implements DbusCommand {
         subparser.addArgument("-n", "--name").help("Specify the new group name.");
         subparser.addArgument("-a", "--avatar").help("Specify a new group avatar image file");
         subparser.addArgument("-m", "--member").nargs("*").help("Specify one or more members to add to the group");
+    }
+
+    @Override
+    public Set<OutputType> getSupportedOutputTypes() {
+        return Set.of(OutputType.PLAIN_TEXT, OutputType.JSON);
     }
 
     @Override
