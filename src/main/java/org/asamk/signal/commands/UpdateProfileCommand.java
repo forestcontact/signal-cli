@@ -52,21 +52,14 @@ public class UpdateProfileCommand implements LocalCommand {
                 : avatarPath == null ? null : Optional.of(new File(avatarPath));
 
 
-        var inJson = ns.get("output") == OutputType.JSON || ns.getBoolean("json");
-
-        // TODO delete later when "json" variable is removed
-        if (ns.getBoolean("json")) {
-            logger.warn("\"--json\" option has been deprecated, please use the global \"--output=json\" instead.");
-        }
-
         try {
             m.setProfile(name, about, aboutEmoji, avatarFile);
-            if (inJson) {
+            if (ns.get("output") == OutputType.JSON) {
                 final var jsonWriter = new JsonWriter(System.out);
                 jsonWriter.write(Map.of("status", "success"));
             }
         } catch (IOException e) {
-            if (inJson) {
+            if (ns.get("output") == OutputType.JSON) {
                 final var jsonWriter = new JsonWriter(System.out);
                 jsonWriter.write(Map.of("status", "failure"));
             }

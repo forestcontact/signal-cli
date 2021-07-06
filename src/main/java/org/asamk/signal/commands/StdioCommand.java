@@ -122,7 +122,7 @@ public class StdioCommand implements LocalCommand {
                     false,
                     ignoreAttachments,
                     inJson ? new JsonReceiveMessageHandler(m) : new ReceiveMessageHandler(m)
-                    /*true*/);
+            );
         } catch (IOException e) {
             System.err.println("Error while receiving messages: " + e.getMessage());
         } catch (AssertionError e) {

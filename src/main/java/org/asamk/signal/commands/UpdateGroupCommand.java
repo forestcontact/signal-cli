@@ -71,18 +71,11 @@ public class UpdateGroupCommand implements DbusCommand {
             groupAvatar = "";
         }
 
-        var inJson = ns.get("output") == OutputType.JSON || ns.getBoolean("json");
-
-        // TODO delete later when "json" variable is removed
-        if (ns.getBoolean("json")) {
-            logger.warn("\"--json\" option has been deprecated, please use the global \"--output=json\" instead.");
-        }
-
         try {
             var newGroupId = signal.updateGroup(groupId, groupName, groupMembers, groupAvatar);
             if (groupId.length != newGroupId.length) {
                 String encodedGroup = Base64.getEncoder().encodeToString(newGroupId);
-                if (inJson) {
+                if (ns.get("output") == OutputType.JSON) {
                     final var jsonWriter = new JsonWriter(System.out);
                     jsonWriter.write(Map.of("group", encodedGroup, "members", groupMembers, "name", groupName));
                 } else {
