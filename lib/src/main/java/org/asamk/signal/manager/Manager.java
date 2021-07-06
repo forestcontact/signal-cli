@@ -35,7 +35,6 @@ import org.asamk.signal.manager.storage.groups.GroupInfo;
 import org.asamk.signal.manager.storage.groups.GroupInfoV1;
 import org.asamk.signal.manager.storage.groups.GroupInfoV2;
 import org.asamk.signal.manager.storage.messageCache.CachedMessage;
-import org.asamk.signal.manager.storage.profiles.ProfileStore;
 import org.asamk.signal.manager.storage.profiles.SignalProfile;
 import org.asamk.signal.manager.storage.protocol.IdentityInfo;
 import org.asamk.signal.manager.storage.stickers.Sticker;
@@ -387,9 +386,8 @@ public class Manager implements Closeable {
                 avatarStore.deleteProfileAvatar(getSelfAddress());
             }
         }
-        System.out.println("about to getProfileStore");
-        ProfileStore profileStore = account.getProfileStore();
-        profileStore.updateProfile(getSelfAddress(),
+        account.getProfileStore()
+                .updateProfile(getSelfAddress(),
                         account.getProfileKey(),
                         System.currentTimeMillis(),
                         newProfile,
