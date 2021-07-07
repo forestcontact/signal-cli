@@ -27,7 +27,6 @@ dependencies {
     implementation("com.github.hypfvieh:dbus-java:3.2.4")
     implementation("org.slf4j:slf4j-simple:1.7.30")
     implementation(project(":lib"))
-    implementation("com.squareup.okhttp3:logging-interceptor:4.9.1")
 }
 
 configurations {

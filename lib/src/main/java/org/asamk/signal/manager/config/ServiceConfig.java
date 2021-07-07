@@ -1,8 +1,6 @@
 package org.asamk.signal.manager.config;
 
 import org.signal.zkgroup.internal.Native;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.whispersystems.signalservice.api.account.AccountAttributes;
 import org.whispersystems.signalservice.api.push.TrustStore;
 
@@ -14,29 +12,6 @@ import java.security.cert.CertificateException;
 import java.util.List;
 
 import okhttp3.Interceptor;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.logging.HttpLoggingInterceptor;
-
-
-class LoggingInterceptor implements Interceptor {
-    private final static Logger logger = LoggerFactory.getLogger("root");
-    @Override public Response intercept(Interceptor.Chain chain) throws IOException {
-        Request request = chain.request();
-
-        long t1 = System.nanoTime();
-        logger.info(String.format("Sending request %s on %s%n%s",
-                request.url(), chain.connection(), request.headers()));
-
-        Response response = chain.proceed(request);
-
-        long t2 = System.nanoTime();
-        logger.info(String.format("Received response for %s in %.1fms%n%s",
-                response.request().url(), (t2 - t1) / 1e6d, response.headers()));
-
-        return response;
-    }
-}
 
 public class ServiceConfig {
 
