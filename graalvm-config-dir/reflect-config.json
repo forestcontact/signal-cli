@@ -367,13 +367,13 @@
   "allDeclaredConstructors":true
 },
 {
-  "name": "org.asamk.signal.json.JsonGroupInfo",
+  "name":"org.asamk.signal.json.JsonGroupInfo",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
 },
 {
-  "name": "org.asamk.signal.json.JsonMention",
+  "name":"org.asamk.signal.json.JsonMention",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
@@ -391,7 +391,7 @@
   "allDeclaredConstructors":true
 },
 {
-  "name": "org.asamk.signal.json.JsonQuotedAttachment",
+  "name":"org.asamk.signal.json.JsonQuotedAttachment",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
@@ -409,37 +409,37 @@
   "allDeclaredConstructors":true
 },
 {
-  "name": "org.asamk.signal.json.JsonRemoteDelete",
+  "name":"org.asamk.signal.json.JsonRemoteDelete",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
 },
 {
-  "name": "org.asamk.signal.json.JsonSharedContact",
+  "name":"org.asamk.signal.json.JsonSharedContact",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
 },
 {
-  "name": "org.asamk.signal.json.JsonSticker",
+  "name":"org.asamk.signal.json.JsonSticker",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
 },
 {
-  "name": "org.asamk.signal.json.JsonSyncDataMessage",
+  "name":"org.asamk.signal.json.JsonSyncDataMessage",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
 },
 {
-  "name": "org.asamk.signal.json.JsonSyncMessage",
+  "name":"org.asamk.signal.json.JsonSyncMessage",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
 },
 {
-  "name": "org.asamk.signal.json.JsonSyncReadMessage",
+  "name":"org.asamk.signal.json.JsonSyncReadMessage",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
@@ -513,8 +513,7 @@
   "name":"org.asamk.signal.manager.storage.profiles.ProfileStore$ProfileStoreDeserializer",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
-  "allDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "allDeclaredConstructors":true
 },
 {
   "name":"org.asamk.signal.manager.storage.profiles.ProfileStore$ProfileStoreSerializer",
@@ -1216,6 +1215,20 @@
   "allDeclaredMethods":true
 },
 {
+  "name":"org.whispersystems.signalservice.api./.SignalServiceProfile$Capabilities",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
+},
+{
+  "name":"org.whispersystems.signalservice.api.SignalServiceProtocolStore",
+  "allDeclaredMethods":true
+},
+{
+  "name":"org.whispersystems.signalservice.api.SignalServiceSessionStore",
+  "allDeclaredMethods":true
+},
+{
   "name":"org.whispersystems.signalservice.api.account.AccountAttributes",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
@@ -1250,12 +1263,6 @@
 },
 {
   "name":"org.whispersystems.signalservice.api.profiles.SignalServiceProfile",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true,
-  "allDeclaredConstructors":true
-},
-{
-  "name":"org.whispersystems.signalservice.api.profiles.SignalServiceProfile$Capabilities",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
@@ -1758,10 +1765,10 @@
 {
   "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$GroupContext",
   "fields":[
-    {"name":"id_", "allowUnsafeAccess":true},
-    {"name":"name_", "allowUnsafeAccess":true},
-    {"name":"membersE164_", "allowUnsafeAccess":true},
-    {"name":"members_", "allowUnsafeAccess":true}
+    {"name":"id_", "allowUnsafeAccess":true}, 
+    {"name":"membersE164_", "allowUnsafeAccess":true}, 
+    {"name":"members_", "allowUnsafeAccess":true}, 
+    {"name":"name_", "allowUnsafeAccess":true}
   ]
 },
 {

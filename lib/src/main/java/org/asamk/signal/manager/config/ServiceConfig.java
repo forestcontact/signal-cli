@@ -74,10 +74,7 @@ public class ServiceConfig {
                 .header("User-Agent", userAgent)
                 .build());
 
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-        final var interceptors = List.of(userAgentInterceptor, logging);
+        final var interceptors = List.of(userAgentInterceptor);
 
         switch (serviceEnvironment) {
             case LIVE:

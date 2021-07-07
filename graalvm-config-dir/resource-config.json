@@ -2,6 +2,7 @@
   "resources":{
   "includes":[
     {"pattern":"\\Qcom/google/i18n/phonenumbers/data/PhoneNumberMetadataProto_DE\\E"}, 
+    {"pattern":"\\Qcom/google/i18n/phonenumbers/data/PhoneNumberMetadataProto_US\\E"}, 
     {"pattern":"\\Qlibsignal_jni.so\\E"}, 
     {"pattern":"\\Qlibzkgroup.so\\E"}, 
     {"pattern":"\\Qorg/asamk/signal/manager/config/ias.store\\E"}, 
