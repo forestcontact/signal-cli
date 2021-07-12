@@ -12,6 +12,8 @@ Adds a stdio command as an alternative to the DBus interface. Send newline-delim
 
 updateGroup emits json with the group id, name, and members.
 
+updateProfile doesn't work in graal native
+
 ## Installation
 
 You can [build signal-cli](#building) yourself, or use the [provided binary files](https://github.com/AsamK/signal-cli/releases/latest), which should work on Linux, macOS and Windows. For Arch Linux there is also a [package in AUR](https://aur.archlinux.org/packages/signal-cli/) and there is a [FreeBSD port](https://www.freshports.org/net-im/signal-cli) available as well.
