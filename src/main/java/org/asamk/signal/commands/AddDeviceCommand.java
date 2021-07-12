@@ -16,14 +16,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static org.asamk.signal.util.ErrorUtils.handleAssertionError;
-
 public class AddDeviceCommand implements LocalCommand {
 
     private final static Logger logger = LoggerFactory.getLogger(AddDeviceCommand.class);
 
     @Override
     public void attachToSubparser(final Subparser subparser) {
+        subparser.help("Link another device to this device. Only works, if this is the master device.");
         subparser.addArgument("--uri")
                 .required(true)
                 .help("Specify the uri contained in the QR code shown by the new device.");
@@ -37,13 +36,10 @@ public class AddDeviceCommand implements LocalCommand {
             logger.error("Add device link failed", e);
             throw new IOErrorException("Add device link failed");
         } catch (URISyntaxException e) {
-            throw new UserErrorException("Device link uri has invalid format: {}" + e.getMessage());
+            throw new UserErrorException("Device link uri has invalid format: " + e.getMessage());
         } catch (InvalidKeyException e) {
             logger.error("Add device link failed", e);
             throw new UnexpectedErrorException("Add device link failed.");
-        } catch (AssertionError e) {
-            handleAssertionError(e);
-            throw e;
         }
     }
 }

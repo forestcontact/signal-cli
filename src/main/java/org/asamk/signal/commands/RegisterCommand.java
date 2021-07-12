@@ -16,8 +16,9 @@ public class RegisterCommand implements RegistrationCommand {
 
     @Override
     public void attachToSubparser(final Subparser subparser) {
+        subparser.help("Register a phone number with SMS or voice verification.");
         subparser.addArgument("-v", "--voice")
-                .help("The verification should be done over voice, not sms.")
+                .help("The verification should be done over voice, not SMS.")
                 .action(Arguments.storeTrue());
         subparser.addArgument("--captcha")
                 .help("The captcha token, required if registration failed with a captcha required error.");
@@ -26,7 +27,8 @@ public class RegisterCommand implements RegistrationCommand {
     @Override
     public void handleCommand(final Namespace ns, final RegistrationManager m) throws CommandException {
         final boolean voiceVerification = ns.getBoolean("voice");
-        final var captcha = ns.getString("captcha");
+        final var captchaString = ns.getString("captcha");
+        final var captcha = captchaString == null ? null : captchaString.replace("signalcaptcha://", "");
 
         try {
             m.register(voiceVerification, captcha);

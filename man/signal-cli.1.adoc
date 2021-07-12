@@ -92,6 +92,12 @@ If this is the master device, other users can't send messages to this number any
 Use "updateAccount" to undo this.
 To remove a linked device, use "removeDevice" from the master device.
 
+*--delete-account*::
+Delete account completely from server. Cannot be undone without loss. You will
+have to be readded to each group.
+
+CAUTION: Only delete your account if you won't use this number again!
+
 === updateAccount
 
 Update the account attributes on the signal server.
@@ -129,14 +135,14 @@ You will need the full uri enclosed in quotation marks, such as "tsdevice:/?uuid
 
 === listDevices
 
-Show a list of connected devices.
+Show a list of linked devices.
 
 === removeDevice
 
-Remove a connected device.
+Remove a linked device.
 Only works, if this is the master device.
 
-*-d* DEVICEID, *--deviceId* DEVICEID::
+*-d* DEVICE_ID, *--device-id* DEVICE_ID::
 Specify the device you want to remove.
 Use listDevices to see the deviceIds.
 
@@ -193,6 +199,20 @@ Specify the timestamp of the message to which to react.
 *-r*, *--remove*::
 Remove a reaction.
 
+=== sendTyping
+
+Send typing message to trigger a typing indicator for the recipient.
+Indicator will be shown for 15seconds unless a typing STOP message is sent first.
+
+RECIPIENT::
+Specify the recipients’ phone number.
+
+*-g* GROUP, *--group* GROUP::
+Specify the recipient group ID in base64 encoding.
+
+*-s*, *--stop*::
+Send a typing STOP message.
+
 === remoteDelete
 
 Remotely delete a previously sent message.
@@ -221,8 +241,6 @@ Don’t download attachments of received messages.
 === joinGroup
 
 Join a group via an invitation link.
-To be able to join a v2 group the account needs to have a profile (can be created
-with the `updateProfile` command)
 
 *--uri*::
 The invitation link URI (starts with `https://signal.group/#`)
@@ -231,8 +249,6 @@ The invitation link URI (starts with `https://signal.group/#`)
 
 Create or update a group.
 If the user is a pending member, this command will accept the group invitation.
-To be able to join or create a v2 group the account needs to have a profile (can
-be created with the `updateProfile` command)
 
 *-g* GROUP, *--group* GROUP::
 Specify the recipient group ID in base64 encoding.
@@ -241,11 +257,39 @@ If not specified, a new group with a new random ID is generated.
 *-n* NAME, *--name* NAME::
 Specify the new group name.
 
+*-d* DESCRIPTION, *--description* DESCRIPTION::
+Specify the new group description.
+
 *-a* AVATAR, *--avatar* AVATAR::
 Specify a new group avatar image file.
 
 *-m* [MEMBER [MEMBER ...]], *--member* [MEMBER [MEMBER ...]]::
 Specify one or more members to add to the group.
+
+*-r* [MEMBER [MEMBER ...]], *--remove-member* [MEMBER [MEMBER ...]]::
+Specify one or more members to remove from the group
+
+*--admin* [MEMBER [MEMBER ...]]::
+Specify one or more members to make a group admin
+
+*--remove-admin* [MEMBER [MEMBER ...]]::
+Specify one or more members to remove group admin privileges
+
+*--reset-link*::
+Reset group link and create new link password
+
+*--link* LINK_STATE::
+Set group link state: `enabled`, `enabled-with-approval`, `disabled`
+
+*--set-permission-add-member* PERMISSION::
+Set permission to add new group members: `every-member`, `only-admins`
+
+*--set-permission-edit-details* PERMISSION::
+Set permission to edit group details: `every-member`, `only-admins`
+
+*-e* EXPIRATION_SECONDS, *--expiration* EXPIRATION_SECONDS::
+Set expiration time of messages (seconds).
+To disable expiration set expiration time to 0.
 
 === quitGroup
 
@@ -255,6 +299,9 @@ If the user is a pending member, this command will decline the group invitation.
 *-g* GROUP, *--group* GROUP::
 Specify the recipient group ID in base64 encoding.
 
+*--delete*::
+Delete local group data completely after quitting group.
+
 === listGroups
 
 Show a list of known groups and related information.
@@ -262,6 +309,10 @@ In json mode this is outputted as an list of objects and is always in detailed m
 
 *-d*, *--detailed*::
 Include the list of members of each group and the group invite link.
+
+=== listContacts
+
+Show a list of known contacts with names.
 
 === listIdentities
 
@@ -287,18 +338,28 @@ Specify the safety number of the key, only use this option if you have verified 
 
 === updateProfile
 
-Update the name and avatar image visible by message recipients for the current users.
+Update the profile information shown to message recipients.
 The profile is stored encrypted on the Signal servers.
-The decryption key is sent with every outgoing messages to contacts.
+The decryption key is sent with every outgoing messages to contacts and included
+in every group.
 
-*--name*::
-New name visible by message recipients.
+*--given-name* NAME, *--name* NAME::
+New (given) name.
 
-*--avatar*::
-Path to the new avatar visible by message recipients.
+*--family-name* FAMILY_NAME::
+New family name.
+
+*--about* ABOUT_TEXT::
+New profile status text.
+
+*--about-emoji* EMOJI::
+New profile status emoji.
+
+*--avatar* AVATAR_FILE::
+Path to the new avatar image file.
 
 *--remove-avatar*::
-Remove the avatar visible by message recipients.
+Remove the avatar
 
 === updateContact
 
@@ -312,7 +373,7 @@ Specify the contact phone number.
 *-n*, *--name*::
 Specify the new name for this contact.
 
-*-e*, *--expiration*::
+*-e*, *--expiration* EXPIRATION_SECONDS::
 Set expiration time of messages (seconds).
 To disable expiration set expiration time to 0.
 
@@ -343,9 +404,21 @@ Specify the group IDs that should be unblocked in base64 encoding.
 Send a synchronization message with the local contacts list to all linked devices.
 This command should only be used if this is the master device.
 
+=== sendSyncRequest
+
+Send a synchronization request message to the master device (for group, contacts, ...).
+The master device will respond with synchronization messages with full contact and
+group lists.
+
 === uploadStickerPack
 
-Upload a new sticker pack, consisting of a manifest file and the stickers in WebP format (maximum size for a sticker file is 100KiB).
+Upload a new sticker pack, consisting of a manifest file and the sticker images.
+Images must conform to the following specification: (see https://support.signal.org/hc/en-us/articles/360031836512-Stickers#sticker_reqs )
+- Static stickers in PNG or WebP format
+- Animated stickers in APNG format,
+- Maximum file size for a sticker file is 300KiB
+- Image resolution of 512 x 512 px
+
 The required manifest.json has the following format:
 
 [source,json]
@@ -354,12 +427,14 @@ The required manifest.json has the following format:
   "title": "<STICKER_PACK_TITLE>",
   "author": "<STICKER_PACK_AUTHOR>",
   "cover": { // Optional cover, by default the first sticker is used as cover
-    "file": "<name of webp file, mandatory>",
+    "file": "<name of image file, mandatory>",
+    "contentType": "<optional>",
     "emoji": "<optional>"
   },
   "stickers": [
     {
-      "file": "<name of webp file, mandatory>",
+      "file": "<name of image file, mandatory>",
+      "contentType": "<optional>",
       "emoji": "<optional>"
     }
     ...
@@ -400,6 +475,9 @@ signal-cli -u USERNAME updateGroup -n "Group name" -m [MEMBER [MEMBER ...]]
 
 Add member to a group::
 signal-cli -u USERNAME updateGroup -g GROUP_ID -m "NEW_MEMBER"
+
+Accept a group invitation::
+signal-cli -u USERNAME updateGroup -g GROUP_ID
 
 Leave a group::
 signal-cli -u USERNAME quitGroup -g GROUP_ID

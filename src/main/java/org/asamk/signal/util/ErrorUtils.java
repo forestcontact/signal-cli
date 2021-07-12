@@ -6,19 +6,19 @@ import org.asamk.signal.commands.exceptions.IOErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.whispersystems.signalservice.api.messages.SendMessageResult;
+import org.whispersystems.signalservice.api.push.exceptions.ProofRequiredException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.asamk.signal.util.Util.getLegacyIdentifier;
 
 public class ErrorUtils {
 
     private final static Logger logger = LoggerFactory.getLogger(ErrorUtils.class);
 
     private ErrorUtils() {
-    }
-
-    public static void handleAssertionError(AssertionError e) {
-        logger.warn("If you use an Oracle JRE please check if you have unlimited strength crypto enabled, see README");
     }
 
     public static void handleTimestampAndSendMessageResults(
@@ -44,12 +44,24 @@ public class ErrorUtils {
     }
 
     public static String getErrorMessageFromSendMessageResult(SendMessageResult result) {
+        var identifier = getLegacyIdentifier(result.getAddress());
         if (result.isNetworkFailure()) {
-            return String.format("Network failure for \"%s\"", result.getAddress().getLegacyIdentifier());
+            return String.format("Network failure for \"%s\"", identifier);
         } else if (result.isUnregisteredFailure()) {
-            return String.format("Unregistered user \"%s\"", result.getAddress().getLegacyIdentifier());
+            return String.format("Unregistered user \"%s\"", identifier);
         } else if (result.getIdentityFailure() != null) {
-            return String.format("Untrusted Identity for \"%s\"", result.getAddress().getLegacyIdentifier());
+            return String.format("Untrusted Identity for \"%s\"", identifier);
+        } else if (result.getProofRequiredFailure() != null) {
+            final var failure = result.getProofRequiredFailure();
+            return String.format(
+                    "CAPTCHA proof required for sending to \"%s\", available options \"%s\" with token \"%s\", or wait \"%d\" seconds",
+                    identifier,
+                    failure.getOptions()
+                            .stream()
+                            .map(ProofRequiredException.Option::toString)
+                            .collect(Collectors.joining(", ")),
+                    failure.getToken(),
+                    failure.getRetryAfterSeconds());
         }
         return null;
     }

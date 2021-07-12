@@ -16,13 +16,13 @@ import org.whispersystems.signalservice.internal.push.exceptions.GroupPatchNotAc
 
 import java.io.IOException;
 
-import static org.asamk.signal.util.ErrorUtils.handleAssertionError;
 import static org.asamk.signal.util.ErrorUtils.handleTimestampAndSendMessageResults;
 
 public class JoinGroupCommand implements LocalCommand {
 
     @Override
     public void attachToSubparser(final Subparser subparser) {
+        subparser.help("Join a group via an invitation link.");
         subparser.addArgument("--uri").required(true).help("Specify the uri with the group invitation link.");
     }
 
@@ -47,15 +47,12 @@ public class JoinGroupCommand implements LocalCommand {
 
             final var results = m.joinGroup(linkUrl);
             var newGroupId = results.first();
-            if (!m.getGroup(newGroupId).isMember(m.getSelfAddress())) {
+            if (!m.getGroup(newGroupId).isMember(m.getSelfRecipientId())) {
                 writer.println("Requested to join group \"{}\"", newGroupId.toBase64());
             } else {
                 writer.println("Joined group \"{}\"", newGroupId.toBase64());
             }
             handleTimestampAndSendMessageResults(writer, 0, results.second());
-        } catch (AssertionError e) {
-            handleAssertionError(e);
-            throw e;
         } catch (GroupPatchNotAcceptedException e) {
             throw new UserErrorException("Failed to join group, maybe already a member");
         } catch (IOException e) {

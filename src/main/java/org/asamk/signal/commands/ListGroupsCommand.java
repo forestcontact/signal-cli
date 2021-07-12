@@ -11,9 +11,10 @@ import org.asamk.signal.PlainTextWriterImpl;
 import org.asamk.signal.commands.exceptions.CommandException;
 import org.asamk.signal.manager.Manager;
 import org.asamk.signal.manager.storage.groups.GroupInfo;
+import org.asamk.signal.manager.storage.recipients.RecipientId;
+import org.asamk.signal.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -23,10 +24,10 @@ public class ListGroupsCommand implements LocalCommand {
 
     private final static Logger logger = LoggerFactory.getLogger(ListGroupsCommand.class);
 
-    private static Set<String> resolveMembers(Manager m, Set<SignalServiceAddress> addresses) {
+    private static Set<String> resolveMembers(Manager m, Set<RecipientId> addresses) {
         return addresses.stream()
                 .map(m::resolveSignalServiceAddress)
-                .map(SignalServiceAddress::getLegacyIdentifier)
+                .map(Util::getLegacyIdentifier)
                 .collect(Collectors.toSet());
     }
 
@@ -37,31 +38,32 @@ public class ListGroupsCommand implements LocalCommand {
             final var groupInviteLink = group.getGroupInviteLink();
 
             writer.println(
-                    "Id: {} Name: {}  Active: {} Blocked: {} Members: {} Pending members: {} Requesting members: {} Link: {}",
+                    "Id: {} Name: {} Description: {} Active: {} Blocked: {} Members: {} Pending members: {} Requesting members: {} Admins: {} Link: {}",
                     group.getGroupId().toBase64(),
                     group.getTitle(),
-                    group.isMember(m.getSelfAddress()),
+                    group.getDescription(),
+                    group.isMember(m.getSelfRecipientId()),
                     group.isBlocked(),
                     resolveMembers(m, group.getMembers()),
                     resolveMembers(m, group.getPendingMembers()),
                     resolveMembers(m, group.getRequestingMembers()),
+                    resolveMembers(m, group.getAdminMembers()),
                     groupInviteLink == null ? '-' : groupInviteLink.getUrl());
         } else {
             writer.println("Id: {} Name: {}  Active: {} Blocked: {}",
                     group.getGroupId().toBase64(),
                     group.getTitle(),
-                    group.isMember(m.getSelfAddress()),
+                    group.isMember(m.getSelfRecipientId()),
                     group.isBlocked());
         }
     }
 
     @Override
     public void attachToSubparser(final Subparser subparser) {
+        subparser.help("List group information including names, ids, active status, blocked status and members");
         subparser.addArgument("-d", "--detailed")
                 .action(Arguments.storeTrue())
                 .help("List the members and group invite links of each group. If output=json, then this is always set");
-
-        subparser.help("List group information including names, ids, active status, blocked status and members");
     }
 
     @Override
@@ -80,11 +82,13 @@ public class ListGroupsCommand implements LocalCommand {
 
                 jsonGroups.add(new JsonGroup(group.getGroupId().toBase64(),
                         group.getTitle(),
-                        group.isMember(m.getSelfAddress()),
+                        group.getDescription(),
+                        group.isMember(m.getSelfRecipientId()),
                         group.isBlocked(),
                         resolveMembers(m, group.getMembers()),
                         resolveMembers(m, group.getPendingMembers()),
                         resolveMembers(m, group.getRequestingMembers()),
+                        resolveMembers(m, group.getAdminMembers()),
                         groupInviteLink == null ? null : groupInviteLink.getUrl()));
             }
 
@@ -102,32 +106,38 @@ public class ListGroupsCommand implements LocalCommand {
 
         public String id;
         public String name;
+        public String description;
         public boolean isMember;
         public boolean isBlocked;
 
         public Set<String> members;
         public Set<String> pendingMembers;
         public Set<String> requestingMembers;
+        public Set<String> admins;
         public String groupInviteLink;
 
         public JsonGroup(
                 String id,
                 String name,
+                String description,
                 boolean isMember,
                 boolean isBlocked,
                 Set<String> members,
                 Set<String> pendingMembers,
                 Set<String> requestingMembers,
+                Set<String> admins,
                 String groupInviteLink
         ) {
             this.id = id;
             this.name = name;
+            this.description = description;
             this.isMember = isMember;
             this.isBlocked = isBlocked;
 
             this.members = members;
             this.pendingMembers = pendingMembers;
             this.requestingMembers = requestingMembers;
+            this.admins = admins;
             this.groupInviteLink = groupInviteLink;
         }
     }

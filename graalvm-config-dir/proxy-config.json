@@ -1,3 +1,4 @@
 [
-  ["org.freedesktop.DBus"]
+  ["org.asamk.Signal"],
+  ["org.freedesktop.dbus.interfaces.DBus"]
 ]

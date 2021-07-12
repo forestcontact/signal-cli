@@ -1,12 +1,11 @@
 package org.asamk.signal.manager.helper;
 
+import org.asamk.signal.manager.storage.recipients.RecipientId;
 import org.signal.libsignal.metadata.certificate.InvalidCertificateException;
 import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.crypto.UnidentifiedAccess;
 import org.whispersystems.signalservice.api.crypto.UnidentifiedAccessPair;
-import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,22 +37,25 @@ public class UnidentifiedAccessHelper {
         return UnidentifiedAccess.deriveAccessKeyFrom(selfProfileKeyProvider.getProfileKey());
     }
 
-    public byte[] getTargetUnidentifiedAccessKey(SignalServiceAddress recipient) {
-        var theirProfileKey = profileKeyProvider.getProfileKey(recipient);
-        if (theirProfileKey == null) {
-            return null;
-        }
-
+    public byte[] getTargetUnidentifiedAccessKey(RecipientId recipient) {
         var targetProfile = profileProvider.getProfile(recipient);
-        if (targetProfile == null || targetProfile.getUnidentifiedAccess() == null) {
+        if (targetProfile == null) {
             return null;
         }
 
-        if (targetProfile.isUnrestrictedUnidentifiedAccess()) {
-            return createUnrestrictedUnidentifiedAccess();
-        }
+        switch (targetProfile.getUnidentifiedAccessMode()) {
+            case ENABLED:
+                var theirProfileKey = profileKeyProvider.getProfileKey(recipient);
+                if (theirProfileKey == null) {
+                    return null;
+                }
 
-        return UnidentifiedAccess.deriveAccessKeyFrom(theirProfileKey);
+                return UnidentifiedAccess.deriveAccessKeyFrom(theirProfileKey);
+            case UNRESTRICTED:
+                return createUnrestrictedUnidentifiedAccess();
+            default:
+                return null;
+        }
     }
 
     public Optional<UnidentifiedAccessPair> getAccessForSync() {
@@ -73,11 +75,11 @@ public class UnidentifiedAccessHelper {
         }
     }
 
-    public List<Optional<UnidentifiedAccessPair>> getAccessFor(Collection<SignalServiceAddress> recipients) {
+    public List<Optional<UnidentifiedAccessPair>> getAccessFor(List<RecipientId> recipients) {
         return recipients.stream().map(this::getAccessFor).collect(Collectors.toList());
     }
 
-    public Optional<UnidentifiedAccessPair> getAccessFor(SignalServiceAddress recipient) {
+    public Optional<UnidentifiedAccessPair> getAccessFor(RecipientId recipient) {
         var recipientUnidentifiedAccessKey = getTargetUnidentifiedAccessKey(recipient);
         var selfUnidentifiedAccessKey = getSelfUnidentifiedAccessKey();
         var selfUnidentifiedAccessCertificate = senderCertificateProvider.getSenderCertificate();

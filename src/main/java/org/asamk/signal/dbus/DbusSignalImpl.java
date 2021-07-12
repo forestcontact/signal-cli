@@ -4,16 +4,20 @@ import org.asamk.Signal;
 import org.asamk.signal.BaseConfig;
 import org.asamk.signal.manager.AttachmentInvalidException;
 import org.asamk.signal.manager.Manager;
+import org.asamk.signal.manager.NotMasterDeviceException;
 import org.asamk.signal.manager.groups.GroupId;
 import org.asamk.signal.manager.groups.GroupInviteLinkUrl;
 import org.asamk.signal.manager.groups.GroupNotFoundException;
+import org.asamk.signal.manager.groups.LastGroupAdminException;
 import org.asamk.signal.manager.groups.NotAGroupMemberException;
+import org.asamk.signal.manager.storage.identities.IdentityInfo;
 import org.asamk.signal.util.ErrorUtils;
+import org.asamk.signal.util.Util;
 import org.freedesktop.dbus.exceptions.DBusExecutionException;
+import org.whispersystems.libsignal.util.Pair;
 import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.groupsv2.GroupLinkNotActiveException;
 import org.whispersystems.signalservice.api.messages.SendMessageResult;
-import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 import org.whispersystems.signalservice.api.util.InvalidNumberException;
 
 import java.io.File;
@@ -21,8 +25,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.asamk.signal.util.Util.getLegacyIdentifier;
 
 public class DbusSignalImpl implements Signal {
 
@@ -144,7 +151,11 @@ public class DbusSignalImpl implements Signal {
 
     @Override
     public long sendMessageReaction(
-            final String emoji, final boolean remove, final String targetAuthor, final long targetSentTimestamp, final String recipient
+            final String emoji,
+            final boolean remove,
+            final String targetAuthor,
+            final long targetSentTimestamp,
+            final String recipient
     ) {
         var recipients = new ArrayList<String>(1);
         recipients.add(recipient);
@@ -153,7 +164,11 @@ public class DbusSignalImpl implements Signal {
 
     @Override
     public long sendMessageReaction(
-            final String emoji, final boolean remove, final String targetAuthor, final long targetSentTimestamp, final List<String> recipients
+            final String emoji,
+            final boolean remove,
+            final String targetAuthor,
+            final long targetSentTimestamp,
+            final List<String> recipients
     ) {
         try {
             final var results = m.sendMessageReaction(emoji, remove, targetAuthor, targetSentTimestamp, recipients);
@@ -210,10 +225,18 @@ public class DbusSignalImpl implements Signal {
 
     @Override
     public long sendGroupMessageReaction(
-            final String emoji, final boolean remove, final String targetAuthor, final long targetSentTimestamp, final byte[] groupId
+            final String emoji,
+            final boolean remove,
+            final String targetAuthor,
+            final long targetSentTimestamp,
+            final byte[] groupId
     ) {
         try {
-            final var results = m.sendGroupMessageReaction(emoji, remove, targetAuthor, targetSentTimestamp, GroupId.unknownVersion(groupId));
+            final var results = m.sendGroupMessageReaction(emoji,
+                    remove,
+                    targetAuthor,
+                    targetSentTimestamp,
+                    GroupId.unknownVersion(groupId));
             checkSendMessageResults(results.first(), results.second());
             return results.first();
         } catch (IOException e) {
@@ -231,7 +254,7 @@ public class DbusSignalImpl implements Signal {
     public String getContactName(final String number) {
         try {
             return m.getContactOrProfileName(number);
-        } catch (Exception e) {
+        } catch (InvalidNumberException e) {
             throw new Error.InvalidNumber(e.getMessage());
         }
     }
@@ -242,6 +265,8 @@ public class DbusSignalImpl implements Signal {
             m.setContactName(number, name);
         } catch (InvalidNumberException e) {
             throw new Error.InvalidNumber(e.getMessage());
+        } catch (NotMasterDeviceException e) {
+            throw new Error.Failure("This command doesn't work on linked devices.");
         }
     }
 
@@ -251,6 +276,8 @@ public class DbusSignalImpl implements Signal {
             m.setContactBlocked(number, blocked);
         } catch (InvalidNumberException e) {
             throw new Error.InvalidNumber(e.getMessage());
+        } catch (NotMasterDeviceException e) {
+            throw new Error.Failure("This command doesn't work on linked devices.");
         }
     }
 
@@ -292,7 +319,7 @@ public class DbusSignalImpl implements Signal {
             return group.getMembers()
                     .stream()
                     .map(m::resolveSignalServiceAddress)
-                    .map(SignalServiceAddress::getLegacyIdentifier)
+                    .map(Util::getLegacyIdentifier)
                     .collect(Collectors.toList());
         }
     }
@@ -312,12 +339,29 @@ public class DbusSignalImpl implements Signal {
             if (avatar.isEmpty()) {
                 avatar = null;
             }
-            final var results = m.updateGroup(groupId == null ? null : GroupId.unknownVersion(groupId),
-                    name,
-                    members,
-                    avatar == null ? null : new File(avatar));
-            checkSendMessageResults(0, results.second());
-            return results.first().serialize();
+            if (groupId == null) {
+                final var results = m.createGroup(name, members, avatar == null ? null : new File(avatar));
+                checkSendMessageResults(0, results.second());
+                return results.first().serialize();
+            } else {
+                final var results = m.updateGroup(GroupId.unknownVersion(groupId),
+                        name,
+                        null,
+                        members,
+                        null,
+                        null,
+                        null,
+                        false,
+                        null,
+                        null,
+                        null,
+                        avatar == null ? null : new File(avatar),
+                        null);
+                if (results != null) {
+                    checkSendMessageResults(results.first(), results.second());
+                }
+                return groupId;
+            }
         } catch (IOException e) {
             throw new Error.Failure(e.getMessage());
         } catch (GroupNotFoundException | NotAGroupMemberException e) {
@@ -349,7 +393,7 @@ public class DbusSignalImpl implements Signal {
             Optional<File> avatarFile = removeAvatar
                     ? Optional.absent()
                     : avatarPath == null ? null : Optional.of(new File(avatarPath));
-            m.setProfile(name, about, aboutEmoji, avatarFile);
+            m.setProfile(name, null, about, aboutEmoji, avatarFile);
         } catch (IOException e) {
             throw new Error.Failure(e.getMessage());
         }
@@ -366,8 +410,10 @@ public class DbusSignalImpl implements Signal {
     // all numbers the system knows
     @Override
     public List<String> listNumbers() {
-        return Stream.concat(m.getIdentities().stream().map(i -> i.getAddress().getNumber().orNull()),
-                m.getContacts().stream().map(c -> c.number))
+        return Stream.concat(m.getIdentities().stream().map(IdentityInfo::getRecipientId),
+                m.getContacts().stream().map(Pair::first))
+                .map(m::resolveSignalServiceAddress)
+                .map(a -> a.getNumber().orNull())
                 .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
@@ -379,16 +425,17 @@ public class DbusSignalImpl implements Signal {
         var numbers = new ArrayList<String>();
         var contacts = m.getContacts();
         for (var c : contacts) {
-            if (c.name != null && c.name.equals(name)) {
-                numbers.add(c.number);
+            if (name.equals(c.second().getName())) {
+                numbers.add(getLegacyIdentifier(m.resolveSignalServiceAddress(c.first())));
             }
         }
         // Try profiles if no contact name was found
         for (var identity : m.getIdentities()) {
-            final var address = identity.getAddress();
+            final var recipientId = identity.getRecipientId();
+            final var address = m.resolveSignalServiceAddress(recipientId);
             var number = address.getNumber().orNull();
             if (number != null) {
-                var profile = m.getRecipientProfile(address);
+                var profile = m.getRecipientProfile(recipientId);
                 if (profile != null && profile.getDisplayName().equals(name)) {
                     numbers.add(number);
                 }
@@ -401,11 +448,13 @@ public class DbusSignalImpl implements Signal {
     public void quitGroup(final byte[] groupId) {
         var group = GroupId.unknownVersion(groupId);
         try {
-            m.sendQuitGroupMessage(group);
+            m.sendQuitGroupMessage(group, Set.of());
         } catch (GroupNotFoundException | NotAGroupMemberException e) {
             throw new Error.GroupNotFound(e.getMessage());
-        } catch (IOException e) {
+        } catch (IOException | LastGroupAdminException e) {
             throw new Error.Failure(e.getMessage());
+        } catch (InvalidNumberException e) {
+            throw new Error.InvalidNumber(e.getMessage());
         }
     }
 
@@ -428,13 +477,11 @@ public class DbusSignalImpl implements Signal {
 
     @Override
     public boolean isContactBlocked(final String number) {
-        var contacts = m.getContacts();
-        for (var c : contacts) {
-            if (c.number.equals(number)) {
-                return c.blocked;
-            }
+        try {
+            return m.isContactBlocked(number);
+        } catch (InvalidNumberException e) {
+            throw new Error.InvalidNumber(e.getMessage());
         }
-        return false;
     }
 
     @Override
@@ -453,7 +500,7 @@ public class DbusSignalImpl implements Signal {
         if (group == null) {
             return false;
         } else {
-            return group.isMember(m.getSelfAddress());
+            return group.isMember(m.getSelfRecipientId());
         }
     }
 }

@@ -22,15 +22,15 @@ public class UpdateProfileCommand implements LocalCommand {
 
     @Override
     public void attachToSubparser(final Subparser subparser) {
-        subparser.addArgument("--name").help("New profile name");
+        subparser.help("Set a name, about and avatar image for the user profile");
+        subparser.addArgument("--given-name", "--name").help("New profile (given) name");
+        subparser.addArgument("--family-name").help("New profile family name (optional)");
         subparser.addArgument("--about").help("New profile about text");
         subparser.addArgument("--about-emoji").help("New profile about emoji");
 
         final var avatarOptions = subparser.addMutuallyExclusiveGroup();
         avatarOptions.addArgument("--avatar").help("Path to new profile avatar");
         avatarOptions.addArgument("--remove-avatar").action(Arguments.storeTrue());
-
-        subparser.help("Set a name, about and avatar image for the user profile");
     }
     private final static Logger logger = LoggerFactory.getLogger(UpdateProfileCommand.class);
 
@@ -41,11 +41,12 @@ public class UpdateProfileCommand implements LocalCommand {
 
     @Override
     public void handleCommand(final Namespace ns, final Manager m) throws CommandException {
-        var name = ns.getString("name");
+        var givenName = ns.getString("given-name");
+        var familyName = ns.getString("family-name");
         var about = ns.getString("about");
-        var aboutEmoji = ns.getString("about_emoji");
+        var aboutEmoji = ns.getString("about-emoji");
         var avatarPath = ns.getString("avatar");
-        boolean removeAvatar = ns.getBoolean("remove_avatar");
+        boolean removeAvatar = ns.getBoolean("remove-avatar");
 
         Optional<File> avatarFile = removeAvatar
                 ? Optional.absent()
@@ -53,7 +54,7 @@ public class UpdateProfileCommand implements LocalCommand {
 
 
         try {
-            m.setProfile(name, about, aboutEmoji, avatarFile);
+            m.setProfile(givenName, familyName, about, aboutEmoji, avatarFile);
             if (ns.get("output") == OutputType.JSON) {
                 final var jsonWriter = new JsonWriter(System.out);
                 jsonWriter.write(Map.of("status", "success"));

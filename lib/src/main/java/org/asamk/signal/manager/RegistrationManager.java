@@ -22,6 +22,8 @@ import org.asamk.signal.manager.config.ServiceEnvironmentConfig;
 import org.asamk.signal.manager.helper.PinHelper;
 import org.asamk.signal.manager.storage.SignalAccount;
 import org.asamk.signal.manager.util.KeyUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.whispersystems.libsignal.util.KeyHelper;
 import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.KeyBackupServicePinException;
@@ -29,6 +31,7 @@ import org.whispersystems.signalservice.api.KeyBackupSystemNoDataException;
 import org.whispersystems.signalservice.api.SignalServiceAccountManager;
 import org.whispersystems.signalservice.api.groupsv2.ClientZkOperations;
 import org.whispersystems.signalservice.api.groupsv2.GroupsV2Operations;
+import org.whispersystems.signalservice.api.kbs.MasterKey;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 import org.whispersystems.signalservice.api.util.SleepTimer;
 import org.whispersystems.signalservice.api.util.UptimeSleepTimer;
@@ -43,6 +46,8 @@ import java.io.IOException;
 import java.util.Locale;
 
 public class RegistrationManager implements Closeable {
+
+    private final static Logger logger = LoggerFactory.getLogger(RegistrationManager.class);
 
     private SignalAccount account;
     private final PathConfig pathConfig;
@@ -102,40 +107,48 @@ public class RegistrationManager implements Closeable {
                     identityKey,
                     registrationId,
                     profileKey);
-            account.save();
 
             return new RegistrationManager(account, pathConfig, serviceConfiguration, userAgent);
         }
 
-        var account = SignalAccount.load(pathConfig.getDataPath(), username);
+        var account = SignalAccount.load(pathConfig.getDataPath(), username, true);
 
         return new RegistrationManager(account, pathConfig, serviceConfiguration, userAgent);
     }
 
     public void register(boolean voiceVerification, String captcha) throws IOException {
-        if (account.getPassword() == null) {
-            account.setPassword(KeyUtils.createPassword());
-        }
-
         if (voiceVerification) {
-            accountManager.requestVoiceVerificationCode(Locale.getDefault(),
+            accountManager.requestVoiceVerificationCode(getDefaultLocale(),
                     Optional.fromNullable(captcha),
                     Optional.absent());
         } else {
             accountManager.requestSmsVerificationCode(false, Optional.fromNullable(captcha), Optional.absent());
         }
+    }
 
-        account.save();
+    private Locale getDefaultLocale() {
+        final var locale = Locale.getDefault();
+        try {
+            Locale.LanguageRange.parse(locale.getLanguage() + "-" + locale.getCountry());
+        } catch (IllegalArgumentException e) {
+            logger.debug("Invalid locale, ignoring: {}", locale);
+            return null;
+        }
+
+        return locale;
     }
 
     public Manager verifyAccount(
             String verificationCode, String pin
-    ) throws IOException, KeyBackupSystemNoDataException, KeyBackupServicePinException {
+    ) throws IOException, LockedException, KeyBackupSystemNoDataException, KeyBackupServicePinException {
         verificationCode = verificationCode.replace("-", "");
         VerifyAccountResponse response;
+        MasterKey masterKey;
         try {
-            response = verifyAccountWithCode(verificationCode, pin, null);
-            account.setPinMasterKey(null);
+            response = verifyAccountWithCode(verificationCode, null, null);
+
+            masterKey = null;
+            pin = null;
         } catch (LockedException e) {
             if (pin == null) {
                 throw e;
@@ -143,42 +156,33 @@ public class RegistrationManager implements Closeable {
 
             var registrationLockData = pinHelper.getRegistrationLockData(pin, e);
             if (registrationLockData == null) {
-                throw e;
+                response = verifyAccountWithCode(verificationCode, pin, null);
+                masterKey = null;
+            } else {
+                var registrationLock = registrationLockData.getMasterKey().deriveRegistrationLock();
+                try {
+                    response = verifyAccountWithCode(verificationCode, null, registrationLock);
+                } catch (LockedException _e) {
+                    throw new AssertionError("KBS Pin appeared to matched but reg lock still failed!");
+                }
+                masterKey = registrationLockData.getMasterKey();
             }
-
-            var registrationLock = registrationLockData.getMasterKey().deriveRegistrationLock();
-            try {
-                response = verifyAccountWithCode(verificationCode, null, registrationLock);
-            } catch (LockedException _e) {
-                throw new AssertionError("KBS Pin appeared to matched but reg lock still failed!");
-            }
-            account.setPinMasterKey(registrationLockData.getMasterKey());
         }
 
         // TODO response.isStorageCapable()
         //accountManager.setGcmId(Optional.of(GoogleCloudMessaging.getInstance(this).register(REGISTRATION_ID)));
-
-        account.setDeviceId(SignalServiceAddress.DEFAULT_DEVICE_ID);
-        account.setMultiDevice(false);
-        account.setRegistered(true);
-        account.setUuid(UuidUtil.parseOrNull(response.getUuid()));
-        account.setRegistrationLockPin(pin);
-        account.getSignalProtocolStore().archiveAllSessions();
-        account.getSignalProtocolStore()
-                .saveIdentity(account.getSelfAddress(),
-                        account.getSignalProtocolStore().getIdentityKeyPair().getPublicKey(),
-                        TrustLevel.TRUSTED_VERIFIED);
+        account.finishRegistration(UuidUtil.parseOrNull(response.getUuid()), masterKey, pin);
 
         Manager m = null;
         try {
             m = new Manager(account, pathConfig, serviceEnvironmentConfig, userAgent);
+            account = null;
 
             m.refreshPreKeys();
-
-            account.save();
+            // Set an initial empty profile so user can be added to groups
+            m.setProfile(null, null, null, null, null);
 
             final var result = m;
-            account = null;
             m = null;
 
             return result;
@@ -194,7 +198,7 @@ public class RegistrationManager implements Closeable {
     ) throws IOException {
         return accountManager.verifyAccountWithCode(verificationCode,
                 null,
-                account.getSignalProtocolStore().getLocalRegistrationId(),
+                account.getLocalRegistrationId(),
                 true,
                 legacyPin,
                 registrationLock,

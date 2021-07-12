@@ -5,6 +5,13 @@ To be able to link to an existing Signal-Android/signal-cli instance, signal-cli
 For registering you need a phone number where you can receive SMS or incoming calls.
 signal-cli is primarily intended to be used on servers to notify admins of important events. For this use-case, it has a dbus interface ([man page](https://github.com/AsamK/signal-cli/blob/master/man/signal-cli-dbus.5.adoc)), that can be used to send messages from any programming language that has dbus bindings.
 
+
+## Differences from mainline
+
+Adds a stdio command as an alternative to the DBus interface. Send newline-delimited json to stdin to run commands. The format is e.g. `{"command": "send", "message": "hi", "recipient": ["+15555555555"]}`. Every CLI command is supported; check the command's --help or source for what the argument names should be.
+
+updateGroup emits json with the group id, name, and members.
+
 ## Installation
 
 You can [build signal-cli](#building) yourself, or use the [provided binary files](https://github.com/AsamK/signal-cli/releases/latest), which should work on Linux, macOS and Windows. For Arch Linux there is also a [package in AUR](https://aur.archlinux.org/packages/signal-cli/) and there is a [FreeBSD port](https://www.freshports.org/net-im/signal-cli) available as well.

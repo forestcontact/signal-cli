@@ -49,6 +49,10 @@ public class AvatarStore {
         deleteAvatar(getProfileAvatarFile(address));
     }
 
+    public void deleteGroupAvatar(GroupId groupId) throws IOException {
+        deleteAvatar(getGroupAvatarFile(groupId));
+    }
+
     private StreamDetails retrieveAvatar(final File avatarFile) throws IOException {
         if (!avatarFile.exists()) {
             return null;
@@ -74,11 +78,15 @@ public class AvatarStore {
     }
 
     private File getContactAvatarFile(SignalServiceAddress address) {
-        return new File(avatarsPath, "contact-" + address.getLegacyIdentifier());
+        return new File(avatarsPath, "contact-" + getLegacyIdentifier(address));
+    }
+
+    private String getLegacyIdentifier(final SignalServiceAddress address) {
+        return address.getNumber().or(() -> address.getUuid().get().toString());
     }
 
     private File getProfileAvatarFile(SignalServiceAddress address) {
-        return new File(avatarsPath, "profile-" + address.getLegacyIdentifier());
+        return new File(avatarsPath, "profile-" + getLegacyIdentifier(address));
     }
 
     private void createAvatarsDir() throws IOException {
