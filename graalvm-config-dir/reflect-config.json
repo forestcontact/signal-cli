@@ -107,10 +107,15 @@
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
+  "name":"java.lang.Enum",
+  "allDeclaredMethods":true
+},
+{
   "name":"java.lang.Integer",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
-  "allDeclaredConstructors":true
+  "allDeclaredConstructors":true,
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"java.lang.Iterable",
@@ -120,7 +125,8 @@
   "name":"java.lang.Long",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
-  "allDeclaredConstructors":true
+  "allDeclaredConstructors":true,
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"java.lang.Number",
@@ -186,6 +192,11 @@
   "allDeclaredMethods":true
 },
 {
+  "name":"java.util.HashSet",
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
+},
+{
   "name":"java.util.LinkedHashMap",
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
@@ -226,6 +237,10 @@
 {
   "name":"jnr.enxio.channels.Native$LibC",
   "allPublicMethods":true
+},
+{
+  "name":"jnr.enxio.channels.Native$LibC$jnr$ffi$1",
+  "methods":[{"name":"<init>","parameterTypes":["jnr.ffi.Runtime","jnr.ffi.provider.jffi.NativeLibrary","java.lang.Object[]"] }]
 },
 {
   "name":"jnr.ffi.Pointer",
@@ -281,6 +296,10 @@
   "allPublicMethods":true
 },
 {
+  "name":"jnr.unixsocket.Native$LibC$jnr$ffi$0",
+  "methods":[{"name":"<init>","parameterTypes":["jnr.ffi.Runtime","jnr.ffi.provider.jffi.NativeLibrary","java.lang.Object[]"] }]
+},
+{
   "name":"jnr.unixsocket.SockAddrUnix",
   "allPublicMethods":true
 },
@@ -311,6 +330,18 @@
   "name":"org.asamk.Signal$SyncMessageReceived",
   "allDeclaredConstructors":true,
   "allPublicConstructors":true
+},
+{
+  "name":"org.asamk.signal.commands.GetUserStatusCommand$JsonUserStatus",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
+},
+{
+  "name":"org.asamk.signal.commands.ListGroupsCommand$JsonGroup",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
 },
 {
   "name":"org.asamk.signal.json.JsonAttachment",
@@ -439,6 +470,11 @@
   "allDeclaredConstructors":true
 },
 {
+  "name":"org.asamk.signal.json.JsonSyncMessageType",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
   "name":"org.asamk.signal.json.JsonSyncReadMessage",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
@@ -446,18 +482,6 @@
 },
 {
   "name":"org.asamk.signal.json.JsonTypingMessage",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true,
-  "allDeclaredConstructors":true
-},
-{
-  "name":"org.asamk.signal.manager.storage.contacts.ContactInfo",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true,
-  "allDeclaredConstructors":true
-},
-{
-  "name":"org.asamk.signal.manager.storage.contacts.JsonContactsStore",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
@@ -474,53 +498,51 @@
   "allDeclaredConstructors":true
 },
 {
-  "name":"org.asamk.signal.manager.storage.groups.GroupInfoV1$JsonSignalServiceAddress",
+  "name":"org.asamk.signal.manager.storage.groups.GroupStore$GroupsDeserializer",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.asamk.signal.manager.storage.groups.GroupStore$Storage",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
 },
 {
-  "name":"org.asamk.signal.manager.storage.groups.GroupInfoV1$MembersDeserializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "name":"org.asamk.signal.manager.storage.groups.GroupStore$Storage$Group",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
 },
 {
-  "name":"org.asamk.signal.manager.storage.groups.GroupInfoV1$MembersSerializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.asamk.signal.manager.storage.groups.JsonGroupStore",
+  "name":"org.asamk.signal.manager.storage.groups.GroupStore$Storage$GroupV1",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
-  "allDeclaredConstructors":true,
-  "fields":[{"name":"groups", "allowWrite":true}]
+  "allDeclaredConstructors":true
 },
 {
-  "name":"org.asamk.signal.manager.storage.groups.JsonGroupStore$GroupsDeserializer",
+  "name":"org.asamk.signal.manager.storage.groups.GroupStore$Storage$GroupV1$MembersDeserializer",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.asamk.signal.manager.storage.groups.JsonGroupStore$GroupsSerializer",
+  "name":"org.asamk.signal.manager.storage.groups.GroupStore$Storage$GroupV1$MembersSerializer",
   "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.asamk.signal.manager.storage.groups.GroupStore$Storage$GroupV2",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
+},
+{
+  "name":"org.asamk.signal.manager.storage.identities.IdentityKeyStore$IdentityStorage",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
 },
 {
   "name":"org.asamk.signal.manager.storage.profiles.ProfileStore",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
-  "allDeclaredConstructors":true,
-  "fields":[{"name":"profiles", "allowWrite":true}]
-},
-{
-  "name":"org.asamk.signal.manager.storage.profiles.ProfileStore$ProfileStoreDeserializer",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true,
   "allDeclaredConstructors":true
-},
-{
-  "name":"org.asamk.signal.manager.storage.profiles.ProfileStore$ProfileStoreSerializer",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true,
-  "allDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"org.asamk.signal.manager.storage.profiles.SignalProfile",
@@ -535,57 +557,28 @@
   "allDeclaredConstructors":true
 },
 {
-  "name":"org.asamk.signal.manager.storage.protocol.JsonIdentityKeyStore$JsonIdentityKeyStoreDeserializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.asamk.signal.manager.storage.protocol.JsonIdentityKeyStore$JsonIdentityKeyStoreSerializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.asamk.signal.manager.storage.protocol.JsonPreKeyStore$JsonPreKeyStoreDeserializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.asamk.signal.manager.storage.protocol.JsonPreKeyStore$JsonPreKeyStoreSerializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.asamk.signal.manager.storage.protocol.JsonSessionStore$JsonSessionStoreDeserializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.asamk.signal.manager.storage.protocol.JsonSessionStore$JsonSessionStoreSerializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.asamk.signal.manager.storage.protocol.JsonSignalProtocolStore",
+  "name":"org.asamk.signal.manager.storage.recipients.RecipientStore$Storage",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
 },
 {
-  "name":"org.asamk.signal.manager.storage.protocol.JsonSignedPreKeyStore$JsonSignedPreKeyStoreDeserializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.asamk.signal.manager.storage.protocol.JsonSignedPreKeyStore$JsonSignedPreKeyStoreSerializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.asamk.signal.manager.storage.protocol.RecipientStore",
+  "name":"org.asamk.signal.manager.storage.recipients.RecipientStore$Storage$Recipient",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
-  "allDeclaredConstructors":true,
-  "fields":[{"name":"addresses", "allowWrite":true}]
+  "allDeclaredConstructors":true
 },
 {
-  "name":"org.asamk.signal.manager.storage.protocol.RecipientStore$RecipientStoreDeserializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "name":"org.asamk.signal.manager.storage.recipients.RecipientStore$Storage$Recipient$Contact",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
 },
 {
-  "name":"org.asamk.signal.manager.storage.protocol.RecipientStore$RecipientStoreSerializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "name":"org.asamk.signal.manager.storage.recipients.RecipientStore$Storage$Recipient$Profile",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
 },
 {
   "name":"org.asamk.signal.manager.storage.stickers.StickerStore",
@@ -595,12 +588,16 @@
   "fields":[{"name":"stickers", "allowWrite":true}]
 },
 {
-  "name":"org.asamk.signal.manager.storage.stickers.StickerStore$StickersDeserializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "name":"org.asamk.signal.manager.storage.stickers.StickerStore$Storage",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
 },
 {
-  "name":"org.asamk.signal.manager.storage.stickers.StickerStore$StickersSerializer",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "name":"org.asamk.signal.manager.storage.stickers.StickerStore$Storage$Sticker",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
 },
 {
   "name":"org.asamk.signal.util.SecurityProvider$DefaultRandom",
@@ -971,7 +968,11 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.freedesktop.DBus$NameAcquired",
+  "name":"org.freedesktop.dbus.errors.ServiceUnknown",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"org.freedesktop.dbus.interfaces.DBus$NameAcquired",
   "allDeclaredConstructors":true
 },
 {
@@ -996,10 +997,23 @@
   ]
 },
 {
+  "name":"org.signal.storageservice.protos.groups.AvatarUploadAttributes",
+  "fields":[
+    {"name":"acl_", "allowUnsafeAccess":true}, 
+    {"name":"algorithm_", "allowUnsafeAccess":true}, 
+    {"name":"credential_", "allowUnsafeAccess":true}, 
+    {"name":"date_", "allowUnsafeAccess":true}, 
+    {"name":"key_", "allowUnsafeAccess":true}, 
+    {"name":"policy_", "allowUnsafeAccess":true}, 
+    {"name":"signature_", "allowUnsafeAccess":true}
+  ]
+},
+{
   "name":"org.signal.storageservice.protos.groups.Group",
   "fields":[
     {"name":"accessControl_", "allowUnsafeAccess":true}, 
     {"name":"avatar_", "allowUnsafeAccess":true}, 
+    {"name":"description_", "allowUnsafeAccess":true}, 
     {"name":"disappearingMessagesTimer_", "allowUnsafeAccess":true}, 
     {"name":"inviteLinkPassword_", "allowUnsafeAccess":true}, 
     {"name":"members_", "allowUnsafeAccess":true}, 
@@ -1037,6 +1051,7 @@
     {"name":"modifyAddFromInviteLinkAccess_", "allowUnsafeAccess":true}, 
     {"name":"modifyAttributesAccess_", "allowUnsafeAccess":true}, 
     {"name":"modifyAvatar_", "allowUnsafeAccess":true}, 
+    {"name":"modifyDescription_", "allowUnsafeAccess":true}, 
     {"name":"modifyDisappearingMessagesTimer_", "allowUnsafeAccess":true}, 
     {"name":"modifyInviteLinkPassword_", "allowUnsafeAccess":true}, 
     {"name":"modifyMemberAccess_", "allowUnsafeAccess":true}, 
@@ -1077,6 +1092,26 @@
   "fields":[{"name":"deletedUserId_", "allowUnsafeAccess":true}]
 },
 {
+  "name":"org.signal.storageservice.protos.groups.GroupChange$Actions$ModifyAddFromInviteLinkAccessControlAction",
+  "fields":[{"name":"addFromInviteLinkAccess_", "allowUnsafeAccess":true}]
+},
+{
+  "name":"org.signal.storageservice.protos.groups.GroupChange$Actions$ModifyAttributesAccessControlAction",
+  "fields":[{"name":"attributesAccess_", "allowUnsafeAccess":true}]
+},
+{
+  "name":"org.signal.storageservice.protos.groups.GroupChange$Actions$ModifyDescriptionAction",
+  "fields":[{"name":"description_", "allowUnsafeAccess":true}]
+},
+{
+  "name":"org.signal.storageservice.protos.groups.GroupChange$Actions$ModifyDisappearingMessagesTimerAction",
+  "fields":[{"name":"timer_", "allowUnsafeAccess":true}]
+},
+{
+  "name":"org.signal.storageservice.protos.groups.GroupChange$Actions$ModifyInviteLinkPasswordAction",
+  "fields":[{"name":"inviteLinkPassword_", "allowUnsafeAccess":true}]
+},
+{
   "name":"org.signal.storageservice.protos.groups.GroupChange$Actions$ModifyMemberProfileKeyAction",
   "fields":[{"name":"presentation_", "allowUnsafeAccess":true}]
 },
@@ -1088,6 +1123,14 @@
   ]
 },
 {
+  "name":"org.signal.storageservice.protos.groups.GroupChange$Actions$ModifyMembersAccessControlAction",
+  "fields":[{"name":"membersAccess_", "allowUnsafeAccess":true}]
+},
+{
+  "name":"org.signal.storageservice.protos.groups.GroupChange$Actions$ModifyTitleAction",
+  "fields":[{"name":"title_", "allowUnsafeAccess":true}]
+},
+{
   "name":"org.signal.storageservice.protos.groups.GroupChange$Actions$PromotePendingMemberAction",
   "fields":[{"name":"presentation_", "allowUnsafeAccess":true}]
 },
@@ -1096,6 +1139,20 @@
   "fields":[
     {"name":"role_", "allowUnsafeAccess":true}, 
     {"name":"userId_", "allowUnsafeAccess":true}
+  ]
+},
+{
+  "name":"org.signal.storageservice.protos.groups.GroupInviteLink",
+  "fields":[
+    {"name":"contentsCase_", "allowUnsafeAccess":true}, 
+    {"name":"contents_", "allowUnsafeAccess":true}
+  ]
+},
+{
+  "name":"org.signal.storageservice.protos.groups.GroupInviteLink$GroupInviteLinkContentsV1",
+  "fields":[
+    {"name":"groupMasterKey_", "allowUnsafeAccess":true}, 
+    {"name":"inviteLinkPassword_", "allowUnsafeAccess":true}
   ]
 },
 {
@@ -1130,6 +1187,7 @@
   "fields":[
     {"name":"accessControl_", "allowUnsafeAccess":true}, 
     {"name":"avatar_", "allowUnsafeAccess":true}, 
+    {"name":"description_", "allowUnsafeAccess":true}, 
     {"name":"disappearingMessagesTimer_", "allowUnsafeAccess":true}, 
     {"name":"inviteLinkPassword_", "allowUnsafeAccess":true}, 
     {"name":"members_", "allowUnsafeAccess":true}, 
@@ -1150,6 +1208,7 @@
     {"name":"modifyMemberRoles_", "allowUnsafeAccess":true}, 
     {"name":"newAttributeAccess_", "allowUnsafeAccess":true}, 
     {"name":"newAvatar_", "allowUnsafeAccess":true}, 
+    {"name":"newDescription_", "allowUnsafeAccess":true}, 
     {"name":"newInviteLinkAccess_", "allowUnsafeAccess":true}, 
     {"name":"newInviteLinkPassword_", "allowUnsafeAccess":true}, 
     {"name":"newMemberAccess_", "allowUnsafeAccess":true}, 
@@ -1173,11 +1232,25 @@
   ]
 },
 {
+  "name":"org.signal.storageservice.protos.groups.local.DecryptedModifyMemberRole",
+  "fields":[
+    {"name":"role_", "allowUnsafeAccess":true}, 
+    {"name":"uuid_", "allowUnsafeAccess":true}
+  ]
+},
+{
   "name":"org.signal.storageservice.protos.groups.local.DecryptedPendingMember",
   "fields":[
     {"name":"addedByUuid_", "allowUnsafeAccess":true}, 
     {"name":"role_", "allowUnsafeAccess":true}, 
     {"name":"timestamp_", "allowUnsafeAccess":true}, 
+    {"name":"uuidCipherText_", "allowUnsafeAccess":true}, 
+    {"name":"uuid_", "allowUnsafeAccess":true}
+  ]
+},
+{
+  "name":"org.signal.storageservice.protos.groups.local.DecryptedPendingMemberRemoval",
+  "fields":[
     {"name":"uuidCipherText_", "allowUnsafeAccess":true}, 
     {"name":"uuid_", "allowUnsafeAccess":true}
   ]
@@ -1189,6 +1262,10 @@
     {"name":"timestamp_", "allowUnsafeAccess":true}, 
     {"name":"uuid_", "allowUnsafeAccess":true}
   ]
+},
+{
+  "name":"org.signal.storageservice.protos.groups.local.DecryptedString",
+  "fields":[{"name":"value_", "allowUnsafeAccess":true}]
 },
 {
   "name":"org.signal.storageservice.protos.groups.local.DecryptedTimer",
@@ -1212,20 +1289,6 @@
 },
 {
   "name":"org.whispersystems.libsignal.state.SignedPreKeyStore",
-  "allDeclaredMethods":true
-},
-{
-  "name":"org.whispersystems.signalservice.api./.SignalServiceProfile$Capabilities",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true,
-  "allDeclaredConstructors":true
-},
-{
-  "name":"org.whispersystems.signalservice.api.SignalServiceProtocolStore",
-  "allDeclaredMethods":true
-},
-{
-  "name":"org.whispersystems.signalservice.api.SignalServiceSessionStore",
   "allDeclaredMethods":true
 },
 {
@@ -1256,6 +1319,34 @@
   "name":"org.whispersystems.signalservice.api.groupsv2.TemporalCredential[]"
 },
 {
+  "name":"org.whispersystems.signalservice.api.messages.calls.HangupMessage",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
+},
+{
+  "name":"org.whispersystems.signalservice.api.messages.calls.HangupMessage$Type",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
+  "name":"org.whispersystems.signalservice.api.messages.calls.IceUpdateMessage",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
+},
+{
+  "name":"org.whispersystems.signalservice.api.messages.calls.OfferMessage",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
+},
+{
+  "name":"org.whispersystems.signalservice.api.messages.calls.OfferMessage$Type",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
   "name":"org.whispersystems.signalservice.api.messages.multidevice.DeviceInfo",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
@@ -1263,6 +1354,18 @@
 },
 {
   "name":"org.whispersystems.signalservice.api.profiles.SignalServiceProfile",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
+},
+{
+  "name":"org.whispersystems.signalservice.api.profiles.SignalServiceProfile$Capabilities",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
+},
+{
+  "name":"org.whispersystems.signalservice.api.profiles.SignalServiceProfileWrite",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
@@ -1342,6 +1445,15 @@
   "allDeclaredConstructors":true
 },
 {
+  "name":"org.whispersystems.signalservice.internal.devices.DeviceNameProtos$DeviceName",
+  "fields":[
+    {"name":"bitField0_", "allowUnsafeAccess":true}, 
+    {"name":"ciphertext_", "allowUnsafeAccess":true}, 
+    {"name":"ephemeralPublic_", "allowUnsafeAccess":true}, 
+    {"name":"syntheticIv_", "allowUnsafeAccess":true}
+  ]
+},
+{
   "name":"org.whispersystems.signalservice.internal.keybackup.protos.BackupRequest",
   "fields":[
     {"name":"backupId_", "allowUnsafeAccess":true}, 
@@ -1386,6 +1498,27 @@
     {"name":"bitField0_", "allowUnsafeAccess":true}, 
     {"name":"delete_", "allowUnsafeAccess":true}, 
     {"name":"restore_", "allowUnsafeAccess":true}
+  ]
+},
+{
+  "name":"org.whispersystems.signalservice.internal.keybackup.protos.RestoreRequest",
+  "fields":[
+    {"name":"backupId_", "allowUnsafeAccess":true}, 
+    {"name":"bitField0_", "allowUnsafeAccess":true}, 
+    {"name":"pin_", "allowUnsafeAccess":true}, 
+    {"name":"serviceId_", "allowUnsafeAccess":true}, 
+    {"name":"token_", "allowUnsafeAccess":true}, 
+    {"name":"validFrom_", "allowUnsafeAccess":true}
+  ]
+},
+{
+  "name":"org.whispersystems.signalservice.internal.keybackup.protos.RestoreResponse",
+  "fields":[
+    {"name":"bitField0_", "allowUnsafeAccess":true}, 
+    {"name":"data_", "allowUnsafeAccess":true}, 
+    {"name":"status_", "allowUnsafeAccess":true}, 
+    {"name":"token_", "allowUnsafeAccess":true}, 
+    {"name":"tries_", "allowUnsafeAccess":true}
   ]
 },
 {
@@ -1481,6 +1614,12 @@
   "allDeclaredConstructors":true
 },
 {
+  "name":"org.whispersystems.signalservice.internal.push.ProfileAvatarUploadAttributes",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
+},
+{
   "name":"org.whispersystems.signalservice.internal.push.ProvisioningMessage",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
@@ -1515,6 +1654,12 @@
     {"name":"bitField0_", "allowUnsafeAccess":true}, 
     {"name":"uuid_", "allowUnsafeAccess":true}
   ]
+},
+{
+  "name":"org.whispersystems.signalservice.internal.push.PushServiceSocket$RegistrationLockFailure",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
 },
 {
   "name":"org.whispersystems.signalservice.internal.push.PushServiceSocket$RegistrationLockV2",
@@ -1560,6 +1705,58 @@
   ]
 },
 {
+  "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$CallMessage",
+  "fields":[
+    {"name":"answer_", "allowUnsafeAccess":true}, 
+    {"name":"bitField0_", "allowUnsafeAccess":true}, 
+    {"name":"busy_", "allowUnsafeAccess":true}, 
+    {"name":"destinationDeviceId_", "allowUnsafeAccess":true}, 
+    {"name":"hangup_", "allowUnsafeAccess":true}, 
+    {"name":"iceUpdate_", "allowUnsafeAccess":true}, 
+    {"name":"legacyHangup_", "allowUnsafeAccess":true}, 
+    {"name":"multiRing_", "allowUnsafeAccess":true}, 
+    {"name":"offer_", "allowUnsafeAccess":true}, 
+    {"name":"opaque_", "allowUnsafeAccess":true}
+  ]
+},
+{
+  "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$CallMessage$Hangup",
+  "fields":[
+    {"name":"bitField0_", "allowUnsafeAccess":true}, 
+    {"name":"deviceId_", "allowUnsafeAccess":true}, 
+    {"name":"id_", "allowUnsafeAccess":true}, 
+    {"name":"type_", "allowUnsafeAccess":true}
+  ]
+},
+{
+  "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$CallMessage$IceUpdate",
+  "fields":[
+    {"name":"bitField0_", "allowUnsafeAccess":true}, 
+    {"name":"id_", "allowUnsafeAccess":true}, 
+    {"name":"line_", "allowUnsafeAccess":true}, 
+    {"name":"mid_", "allowUnsafeAccess":true}, 
+    {"name":"opaque_", "allowUnsafeAccess":true}, 
+    {"name":"sdp_", "allowUnsafeAccess":true}
+  ]
+},
+{
+  "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$CallMessage$Offer",
+  "fields":[
+    {"name":"bitField0_", "allowUnsafeAccess":true}, 
+    {"name":"id_", "allowUnsafeAccess":true}, 
+    {"name":"opaque_", "allowUnsafeAccess":true}, 
+    {"name":"sdp_", "allowUnsafeAccess":true}, 
+    {"name":"type_", "allowUnsafeAccess":true}
+  ]
+},
+{
+  "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$CallMessage$Opaque",
+  "fields":[
+    {"name":"bitField0_", "allowUnsafeAccess":true}, 
+    {"name":"data_", "allowUnsafeAccess":true}
+  ]
+},
+{
   "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$ContactDetails",
   "fields":[
     {"name":"archived_", "allowUnsafeAccess":true}, 
@@ -1590,8 +1787,10 @@
     {"name":"bitField0_", "allowUnsafeAccess":true}, 
     {"name":"callMessage_", "allowUnsafeAccess":true}, 
     {"name":"dataMessage_", "allowUnsafeAccess":true}, 
+    {"name":"decryptionErrorMessage_", "allowUnsafeAccess":true}, 
     {"name":"nullMessage_", "allowUnsafeAccess":true}, 
     {"name":"receiptMessage_", "allowUnsafeAccess":true}, 
+    {"name":"senderKeyDistributionMessage_", "allowUnsafeAccess":true}, 
     {"name":"syncMessage_", "allowUnsafeAccess":true}, 
     {"name":"typingMessage_", "allowUnsafeAccess":true}
   ]
@@ -1611,6 +1810,7 @@
     {"name":"groupV2_", "allowUnsafeAccess":true}, 
     {"name":"group_", "allowUnsafeAccess":true}, 
     {"name":"isViewOnce_", "allowUnsafeAccess":true}, 
+    {"name":"payment_", "allowUnsafeAccess":true}, 
     {"name":"preview_", "allowUnsafeAccess":true}, 
     {"name":"profileKey_", "allowUnsafeAccess":true}, 
     {"name":"quote_", "allowUnsafeAccess":true}, 
@@ -1703,6 +1903,13 @@
   ]
 },
 {
+  "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$DataMessage$GroupCallUpdate",
+  "fields":[
+    {"name":"bitField0_", "allowUnsafeAccess":true}, 
+    {"name":"eraId_", "allowUnsafeAccess":true}
+  ]
+},
+{
   "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$DataMessage$Preview",
   "fields":[
     {"name":"bitField0_", "allowUnsafeAccess":true}, 
@@ -1763,15 +1970,6 @@
   ]
 },
 {
-  "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$GroupContext",
-  "fields":[
-    {"name":"id_", "allowUnsafeAccess":true}, 
-    {"name":"membersE164_", "allowUnsafeAccess":true}, 
-    {"name":"members_", "allowUnsafeAccess":true}, 
-    {"name":"name_", "allowUnsafeAccess":true}
-  ]
-},
-{
   "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$GroupContextV2",
   "fields":[
     {"name":"bitField0_", "allowUnsafeAccess":true}, 
@@ -1806,13 +2004,23 @@
     {"name":"groups_", "allowUnsafeAccess":true}, 
     {"name":"keys_", "allowUnsafeAccess":true}, 
     {"name":"messageRequestResponse_", "allowUnsafeAccess":true}, 
+    {"name":"outgoingPayment_", "allowUnsafeAccess":true}, 
     {"name":"padding_", "allowUnsafeAccess":true}, 
     {"name":"read_", "allowUnsafeAccess":true}, 
     {"name":"request_", "allowUnsafeAccess":true}, 
     {"name":"sent_", "allowUnsafeAccess":true}, 
     {"name":"stickerPackOperation_", "allowUnsafeAccess":true}, 
     {"name":"verified_", "allowUnsafeAccess":true}, 
-    {"name":"viewOnceOpen_", "allowUnsafeAccess":true}
+    {"name":"viewOnceOpen_", "allowUnsafeAccess":true}, 
+    {"name":"viewed_", "allowUnsafeAccess":true}
+  ]
+},
+{
+  "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$SyncMessage$Blocked",
+  "fields":[
+    {"name":"groupIds_", "allowUnsafeAccess":true}, 
+    {"name":"numbers_", "allowUnsafeAccess":true}, 
+    {"name":"uuids_", "allowUnsafeAccess":true}
   ]
 },
 {
@@ -1885,6 +2093,15 @@
   ]
 },
 {
+  "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$SyncMessage$Viewed",
+  "fields":[
+    {"name":"bitField0_", "allowUnsafeAccess":true}, 
+    {"name":"senderE164_", "allowUnsafeAccess":true}, 
+    {"name":"senderUuid_", "allowUnsafeAccess":true}, 
+    {"name":"timestamp_", "allowUnsafeAccess":true}
+  ]
+},
+{
   "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$TypingMessage",
   "fields":[
     {"name":"action_", "allowUnsafeAccess":true}, 
@@ -1924,9 +2141,11 @@
   "fields":[
     {"name":"address_", "allowUnsafeAccess":true}, 
     {"name":"bitField0_", "allowUnsafeAccess":true}, 
+    {"name":"groupId_", "allowUnsafeAccess":true}, 
     {"name":"needsReceipt_", "allowUnsafeAccess":true}, 
     {"name":"senderDevice_", "allowUnsafeAccess":true}, 
     {"name":"serverDeliveredTimestamp_", "allowUnsafeAccess":true}, 
+    {"name":"serverGuid_", "allowUnsafeAccess":true}, 
     {"name":"serverReceivedTimestamp_", "allowUnsafeAccess":true}, 
     {"name":"timestamp_", "allowUnsafeAccess":true}
   ]
