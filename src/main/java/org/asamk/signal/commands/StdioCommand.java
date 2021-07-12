@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static org.asamk.signal.util.ErrorUtils.handleAssertionError;
-
 class NamespaceDefaultingToFalse extends Namespace {
 
     public NamespaceDefaultingToFalse(final Map<String, Object> attrs) {
@@ -125,8 +123,6 @@ public class StdioCommand implements LocalCommand {
             );
         } catch (IOException e) {
             System.err.println("Error while receiving messages: " + e.getMessage());
-        } catch (AssertionError e) {
-            handleAssertionError(e);
         } finally {
             reader.terminate();
         }
