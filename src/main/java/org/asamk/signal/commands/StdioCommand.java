@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 class NamespaceDefaultingToFalse extends Namespace {
-
     public NamespaceDefaultingToFalse(final Map<String, Object> attrs) {
         super(attrs);
     }
@@ -37,7 +36,6 @@ class NamespaceDefaultingToFalse extends Namespace {
         }
         return maybeGotten;
     }
-
 }
 
 class InputReader implements Runnable {
@@ -49,7 +47,6 @@ class InputReader implements Runnable {
         this.ourNamespace = ns.getAttrs();
         this.manager = manager;
         this.inJson = inJson;
-
     }
 
     public void terminate() {
@@ -83,16 +80,12 @@ class InputReader implements Runnable {
                 } else {
                     e.printStackTrace(System.err);
                 }
-                // alive = false; // there are some exceptions where we wouldn't want to keep going but idk what they are
             }
         }
     }
 }
 
 public class StdioCommand implements LocalCommand {
-    //private final static Logger logger = LoggerFactory.getLogger(StdioCommand.class);
-
-    @Override
     public void attachToSubparser(final Subparser subparser) {
         subparser.addArgument("--ignore-attachments")
                 .help("Don’t download attachments of received messages.")
