@@ -1,20 +1,5 @@
 [
 {
-  "name":"java.lang.ClassLoader",
-  "methods":[{"name":"getPlatformClassLoader","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.IllegalStateException",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.NoSuchMethodError"
-},
-{
-  "name":"java.lang.UnsatisfiedLinkError",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
-},
-{
   "name":"org.asamk.signal.manager.storage.protocol.SignalProtocolStore",
   "methods":[
     {"name":"getIdentity","parameterTypes":["org.whispersystems.libsignal.SignalProtocolAddress"] }, 
@@ -30,10 +15,6 @@
   ]
 },
 {
-  "name":"org.whispersystems.libsignal.DuplicateMessageException",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
-},
-{
   "name":"org.whispersystems.libsignal.IdentityKey",
   "methods":[
     {"name":"<init>","parameterTypes":["byte[]"] }, 
@@ -45,27 +26,12 @@
   "methods":[{"name":"serialize","parameterTypes":[] }]
 },
 {
-  "name":"org.whispersystems.libsignal.InvalidMessageException",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
-},
-{
   "name":"org.whispersystems.libsignal.SignalProtocolAddress",
   "methods":[{"name":"<init>","parameterTypes":["java.lang.String","int"] }]
 },
 {
-  "name":"org.whispersystems.libsignal.UntrustedIdentityException",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
-},
-{
   "name":"org.whispersystems.libsignal.logging.Log",
   "methods":[{"name":"log","parameterTypes":["int","java.lang.String","java.lang.String"] }]
-},
-{
-  "name":"org.whispersystems.libsignal.protocol.PreKeySignalMessage",
-  "methods":[
-    {"name":"<init>","parameterTypes":["long"] }, 
-    {"name":"nativeHandle","parameterTypes":[] }
-  ]
 },
 {
   "name":"org.whispersystems.libsignal.protocol.SignalMessage",
