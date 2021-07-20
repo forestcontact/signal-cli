@@ -549,7 +549,8 @@
   "name":"org.asamk.signal.manager.storage.profiles.LegacyProfileStore",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
-  "allDeclaredConstructors":true
+  "allDeclaredConstructors":true,
+  "fields":[{"name":"profiles", "allowWrite":true}]
 },
 {
   "name":"org.asamk.signal.manager.storage.profiles.LegacyProfileStore$ProfileStoreDeserializer",
