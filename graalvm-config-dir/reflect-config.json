@@ -490,7 +490,8 @@
   "name":"org.asamk.signal.manager.storage.contacts.LegacyJsonContactsStore",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
-  "allDeclaredConstructors":true
+  "allDeclaredConstructors":true,
+  "fields":[{"name":"contacts", "allowWrite":true}]
 },
 {
   "name":"org.asamk.signal.manager.storage.groups.GroupInfo",
