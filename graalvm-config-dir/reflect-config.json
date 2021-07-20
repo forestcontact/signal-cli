@@ -598,7 +598,8 @@
   "name":"org.asamk.signal.manager.storage.recipients.LegacyRecipientStore",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
-  "allDeclaredConstructors":true
+  "allDeclaredConstructors":true,
+  "fields":[{"name":"addresses", "allowWrite":true}]
 },
 {
   "name":"org.asamk.signal.manager.storage.recipients.LegacyRecipientStore$RecipientStoreDeserializer",
