@@ -1,6 +1,6 @@
 package org.asamk.signal.commands;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -11,32 +11,42 @@ import org.asamk.signal.JsonReceiveMessageHandler;
 import org.asamk.signal.JsonWriter;
 import org.asamk.signal.OutputType;
 import org.asamk.signal.ReceiveMessageHandler;
-import org.asamk.signal.manager.AttachmentInvalidException;
 import org.asamk.signal.manager.Manager;
-import org.asamk.signal.json.JsonStdioCommand;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.whispersystems.signalservice.api.push.exceptions.EncapsulatedExceptions;
-import org.whispersystems.signalservice.api.util.InvalidNumberException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static org.asamk.signal.util.ErrorUtils.handleAssertionError;
+class NamespaceDefaultingToFalse extends Namespace {
+    public NamespaceDefaultingToFalse(final Map<String, Object> attrs) {
+        super(attrs);
+    }
+
+    @Override
+    public Boolean getBoolean(String dest) {
+        Boolean maybeGotten = this.get(dest);
+        if (maybeGotten == null) {
+            maybeGotten = false;
+        }
+        return maybeGotten;
+    }
+}
 
 class InputReader implements Runnable {
-    private final static Logger logger = LoggerFactory.getLogger(InputReader.class);
-
     private volatile boolean alive = true;
-    private final Manager m;
-
-    InputReader(final Manager m) {
-        this.m = m;
+    private final Manager manager;
+    private final Map<String, Object> ourNamespace;
+    private final Boolean inJson;
+    InputReader(Namespace ns, final Manager manager, Boolean inJson) {
+        this.ourNamespace = ns.getAttrs();
+        this.manager = manager;
+        this.inJson = inJson;
     }
 
     public void terminate() {
@@ -47,48 +57,35 @@ class InputReader implements Runnable {
     public void run() {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         ObjectMapper jsonProcessor = new ObjectMapper();
+        JsonWriter jsonWriter = new JsonWriter(System.out);
+        TypeReference<Map<String, Object>> inputType = new TypeReference<>() {};
         while (alive) {
             try {
-                String in = br.readLine();
-                if (in != null) {
-                    JsonStdioCommand command = jsonProcessor.readValue(in, JsonStdioCommand.class);
-                    if (command.commandName.equals("sendMessage")) {
-                        List<String> recipients = new ArrayList<String>();
-                        recipients.add(command.recipient);
-                        List<String> attachments = new ArrayList<>();
-                        if (command.details != null && command.details.has("attachments")) {
-                            command.details.get("attachments").forEach(attachment -> {
-                                if (attachment.isTextual()) {
-                                    attachments.add(attachment.asText());
-                                }
-                            });
-                        }
-                        try {
-                            // verbosity flag? better yet, json acknowledgement with timestamp or message id?
-                            this.m.sendMessage(command.content, attachments, recipients);
-                            logger.info("sentMessage '" + command.content + "' to " + command.recipient);
-                        } catch (AssertionError | AttachmentInvalidException | InvalidNumberException e) {
-                            logger.error("Error in sending message", e);
-                            logger.error(e.getMessage(), e);
-                        }
-                    } /* elif (command.commandName == "sendTyping") {
-        			 getMessageSender().sendTyping(signalServiceAddress?, ....)
-        			}*/
+                String input = br.readLine();
+                if (input != null) {
+                    Map<String, Object> commandMap = jsonProcessor.readValue(input, inputType);
+                    HashMap<String, Object> mergedMap = new HashMap<>(ourNamespace);
+                    mergedMap.putAll(commandMap);
+                    Namespace commandNamespace = new NamespaceDefaultingToFalse(mergedMap);
+                    String commandKey = commandNamespace.getString("command");
+                    LocalCommand commandObject = (LocalCommand) Commands.getCommand(commandKey);
+                    assert commandObject != null;
+                    commandObject.handleCommand(commandNamespace, manager);
                 }
-
-            } catch (IOException e) {
-                System.err.println(e);
-                alive = false;
+            } catch (Exception e) {
+                if (this.inJson) {
+                    StringWriter errors = new StringWriter();
+                    e.printStackTrace(new PrintWriter(errors));
+                    jsonWriter.write(Map.of("error", e.toString(), "traceback", errors.toString()));
+                } else {
+                    e.printStackTrace(System.err);
+                }
             }
-
         }
     }
 }
 
 public class StdioCommand implements LocalCommand {
-    private final static Logger logger = LoggerFactory.getLogger(StdioCommand.class);
-
-    @Override
     public void attachToSubparser(final Subparser subparser) {
         subparser.addArgument("--ignore-attachments")
                 .help("Don’t download attachments of received messages.")
@@ -107,7 +104,7 @@ public class StdioCommand implements LocalCommand {
     public void handleCommand(final Namespace ns, final Manager m) {
         var inJson = ns.get("output") == OutputType.JSON || ns.getBoolean("json");
         boolean ignoreAttachments = ns.getBoolean("ignore_attachments");
-        InputReader reader = new InputReader(m);
+        InputReader reader = new InputReader(ns, m, inJson);
         Thread readerThread = new Thread(reader);
         readerThread.start();
         try {
@@ -116,11 +113,9 @@ public class StdioCommand implements LocalCommand {
                     false,
                     ignoreAttachments,
                     inJson ? new JsonReceiveMessageHandler(m) : new ReceiveMessageHandler(m)
-                    /*true*/);
+            );
         } catch (IOException e) {
             System.err.println("Error while receiving messages: " + e.getMessage());
-        } catch (AssertionError e) {
-            handleAssertionError(e);
         } finally {
             reader.terminate();
         }

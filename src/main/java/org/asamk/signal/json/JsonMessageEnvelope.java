@@ -7,13 +7,19 @@ import org.asamk.Signal;
 import org.asamk.signal.manager.Manager;
 import org.whispersystems.signalservice.api.messages.SignalServiceContent;
 import org.whispersystems.signalservice.api.messages.SignalServiceEnvelope;
+import org.whispersystems.signalservice.api.util.InvalidNumberException;
 
 import java.util.List;
+
+import static org.asamk.signal.util.Util.getLegacyIdentifier;
 
 public class JsonMessageEnvelope {
 
     @JsonProperty
     final String source;
+
+    @JsonProperty
+    final String sourceName;
 
     @JsonProperty
     final Integer sourceDevice;
@@ -48,11 +54,11 @@ public class JsonMessageEnvelope {
     public JsonMessageEnvelope(SignalServiceEnvelope envelope, SignalServiceContent content, Manager m) {
         if (!envelope.isUnidentifiedSender() && envelope.hasSource()) {
             var source = envelope.getSourceAddress();
-            this.source = source.getLegacyIdentifier();
+            this.source = getLegacyIdentifier(source);
             this.sourceDevice = envelope.getSourceDevice();
             this.relay = source.getRelay().orNull();
         } else if (envelope.isUnidentifiedSender() && content != null) {
-            this.source = content.getSender().getLegacyIdentifier();
+            this.source = getLegacyIdentifier(content.getSender());
             this.sourceDevice = content.getSenderDevice();
             this.relay = null;
         } else {
@@ -60,6 +66,13 @@ public class JsonMessageEnvelope {
             this.sourceDevice = null;
             this.relay = null;
         }
+        String name;
+        try {
+            name = m.getContactOrProfileName(this.source);
+        } catch (InvalidNumberException | NullPointerException e) {
+            name = null;
+        }
+        this.sourceName = name;
         this.timestamp = envelope.getTimestamp();
         if (envelope.isReceipt()) {
             this.receiptMessage = JsonReceiptMessage.deliveryReceipt(timestamp, List.of(timestamp));
@@ -85,6 +98,7 @@ public class JsonMessageEnvelope {
 
     public JsonMessageEnvelope(Signal.MessageReceived messageReceived) {
         source = messageReceived.getSender();
+        sourceName = null;
         sourceDevice = null;
         relay = null;
         timestamp = messageReceived.getTimestamp();
@@ -97,6 +111,7 @@ public class JsonMessageEnvelope {
 
     public JsonMessageEnvelope(Signal.ReceiptReceived receiptReceived) {
         source = receiptReceived.getSender();
+        sourceName = null;
         sourceDevice = null;
         relay = null;
         timestamp = receiptReceived.getTimestamp();
@@ -109,6 +124,7 @@ public class JsonMessageEnvelope {
 
     public JsonMessageEnvelope(Signal.SyncMessageReceived messageReceived) {
         source = messageReceived.getSource();
+        sourceName = null;
         sourceDevice = null;
         relay = null;
         timestamp = messageReceived.getTimestamp();

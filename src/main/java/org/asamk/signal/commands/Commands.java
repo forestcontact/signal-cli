@@ -1,11 +1,11 @@
 package org.asamk.signal.commands;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class Commands {
 
-    private static final Map<String, Command> commands = new HashMap<>();
+    private static final Map<String, Command> commands = new TreeMap<>();
 
     static {
         addCommand("addDevice", new AddDeviceCommand());
@@ -28,6 +28,8 @@ public class Commands {
         addCommand("send", new SendCommand());
         addCommand("sendContacts", new SendContactsCommand());
         addCommand("sendReaction", new SendReactionCommand());
+        addCommand("sendSyncRequest", new SendSyncRequestCommand());
+        addCommand("sendTyping", new SendTypingCommand());
         addCommand("setPin", new SetPinCommand());
         addCommand("trust", new TrustCommand());
         addCommand("unblock", new UnblockCommand());

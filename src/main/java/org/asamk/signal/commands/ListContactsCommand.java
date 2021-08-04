@@ -6,10 +6,13 @@ import net.sourceforge.argparse4j.inf.Subparser;
 import org.asamk.signal.PlainTextWriterImpl;
 import org.asamk.signal.manager.Manager;
 
+import static org.asamk.signal.util.Util.getLegacyIdentifier;
+
 public class ListContactsCommand implements LocalCommand {
 
     @Override
     public void attachToSubparser(final Subparser subparser) {
+        subparser.help("Show a list of known contacts with names.");
     }
 
     @Override
@@ -18,7 +21,10 @@ public class ListContactsCommand implements LocalCommand {
 
         var contacts = m.getContacts();
         for (var c : contacts) {
-            writer.println("Number: {} Name: {} Blocked: {}", c.number, c.name, c.blocked);
+            writer.println("Number: {} Name: {} Blocked: {}",
+                    getLegacyIdentifier(m.resolveSignalServiceAddress(c.first())),
+                    c.second().getName(),
+                    c.second().isBlocked());
         }
     }
 }

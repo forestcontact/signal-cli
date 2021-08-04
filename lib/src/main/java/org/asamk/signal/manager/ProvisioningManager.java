@@ -21,17 +21,16 @@ import org.asamk.signal.manager.config.ServiceEnvironment;
 import org.asamk.signal.manager.config.ServiceEnvironmentConfig;
 import org.asamk.signal.manager.storage.SignalAccount;
 import org.asamk.signal.manager.util.KeyUtils;
-import org.signal.zkgroup.InvalidInputException;
-import org.signal.zkgroup.profiles.ProfileKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.whispersystems.libsignal.IdentityKeyPair;
-import org.whispersystems.libsignal.InvalidKeyException;
 import org.whispersystems.libsignal.util.KeyHelper;
 import org.whispersystems.signalservice.api.SignalServiceAccountManager;
 import org.whispersystems.signalservice.api.groupsv2.ClientZkOperations;
 import org.whispersystems.signalservice.api.groupsv2.GroupsV2Operations;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
+import org.whispersystems.signalservice.api.push.exceptions.AuthorizationFailedException;
+import org.whispersystems.signalservice.api.util.DeviceNameUtil;
 import org.whispersystems.signalservice.api.util.SleepTimer;
 import org.whispersystems.signalservice.api.util.UptimeSleepTimer;
 import org.whispersystems.signalservice.internal.util.DynamicCredentialsProvider;
@@ -50,7 +49,7 @@ public class ProvisioningManager {
     private final String userAgent;
 
     private final SignalServiceAccountManager accountManager;
-    private final IdentityKeyPair identityKey;
+    private final IdentityKeyPair tempIdentityKey;
     private final int registrationId;
     private final String password;
 
@@ -59,7 +58,7 @@ public class ProvisioningManager {
         this.serviceEnvironmentConfig = serviceEnvironmentConfig;
         this.userAgent = userAgent;
 
-        identityKey = KeyUtils.generateIdentityKeyPair();
+        tempIdentityKey = KeyUtils.generateIdentityKeyPair();
         registrationId = KeyHelper.generateRegistrationId(false);
         password = KeyUtils.createPassword();
         final SleepTimer timer = new UptimeSleepTimer();
@@ -90,42 +89,43 @@ public class ProvisioningManager {
     public URI getDeviceLinkUri() throws TimeoutException, IOException {
         var deviceUuid = accountManager.getNewDeviceUuid();
 
-        return new DeviceLinkInfo(deviceUuid, identityKey.getPublicKey().getPublicKey()).createDeviceLinkUri();
+        return new DeviceLinkInfo(deviceUuid, tempIdentityKey.getPublicKey().getPublicKey()).createDeviceLinkUri();
     }
 
-    public Manager finishDeviceLink(String deviceName) throws IOException, InvalidKeyException, TimeoutException, UserAlreadyExists {
-        var ret = accountManager.finishNewDeviceRegistration(identityKey, false, true, registrationId, deviceName);
+    public Manager finishDeviceLink(String deviceName) throws IOException, TimeoutException, UserAlreadyExists {
+        var ret = accountManager.getNewDeviceRegistration(tempIdentityKey);
+        var number = ret.getNumber();
 
-        var username = ret.getNumber();
-        // TODO do this check before actually registering
-        if (SignalAccount.userExists(pathConfig.getDataPath(), username)) {
-            throw new UserAlreadyExists(username, SignalAccount.getFileName(pathConfig.getDataPath(), username));
+        logger.info("Received link information from {}, linking in progress ...", number);
+
+        if (SignalAccount.userExists(pathConfig.getDataPath(), number) && !canRelinkExistingAccount(number)) {
+            throw new UserAlreadyExists(number, SignalAccount.getFileName(pathConfig.getDataPath(), number));
         }
+
+        var encryptedDeviceName = deviceName == null
+                ? null
+                : DeviceNameUtil.encryptDeviceName(deviceName, ret.getIdentity().getPrivateKey());
+
+        var deviceId = accountManager.finishNewDeviceRegistration(ret.getProvisioningCode(),
+                false,
+                true,
+                registrationId,
+                encryptedDeviceName);
 
         // Create new account with the synced identity
-        var profileKeyBytes = ret.getProfileKey();
-        ProfileKey profileKey;
-        if (profileKeyBytes == null) {
-            profileKey = KeyUtils.createProfileKey();
-        } else {
-            try {
-                profileKey = new ProfileKey(profileKeyBytes);
-            } catch (InvalidInputException e) {
-                throw new IOException("Received invalid profileKey", e);
-            }
-        }
+        var profileKey = ret.getProfileKey() == null ? KeyUtils.createProfileKey() : ret.getProfileKey();
 
         SignalAccount account = null;
         try {
-            account = SignalAccount.createLinkedAccount(pathConfig.getDataPath(),
-                    username,
+            account = SignalAccount.createOrUpdateLinkedAccount(pathConfig.getDataPath(),
+                    number,
                     ret.getUuid(),
                     password,
-                    ret.getDeviceId(),
+                    encryptedDeviceName,
+                    deviceId,
                     ret.getIdentity(),
                     registrationId,
                     profileKey);
-            account.save();
 
             Manager m = null;
             try {
@@ -134,22 +134,16 @@ public class ProvisioningManager {
                 try {
                     m.refreshPreKeys();
                 } catch (Exception e) {
-                    logger.error("Failed to refresh prekeys.");
+                    logger.error("Failed to check new account state.");
                     throw e;
                 }
 
                 try {
-                    m.requestSyncGroups();
-                    m.requestSyncContacts();
-                    m.requestSyncBlocked();
-                    m.requestSyncConfiguration();
-                    m.requestSyncKeys();
+                    m.requestAllSyncData();
                 } catch (Exception e) {
                     logger.error("Failed to request sync messages from linked device.");
                     throw e;
                 }
-
-                account.save();
 
                 final var result = m;
                 account = null;
@@ -165,6 +159,33 @@ public class ProvisioningManager {
             if (account != null) {
                 account.close();
             }
+        }
+    }
+
+    private boolean canRelinkExistingAccount(final String number) throws UserAlreadyExists, IOException {
+        final SignalAccount signalAccount;
+        try {
+            signalAccount = SignalAccount.load(pathConfig.getDataPath(), number, false);
+        } catch (IOException e) {
+            logger.debug("Account in use or failed to load.", e);
+            return false;
+        }
+
+        try (signalAccount) {
+            if (signalAccount.isMasterDevice()) {
+                logger.debug("Account is a master device.");
+                return false;
+            }
+
+            final var m = new Manager(signalAccount, pathConfig, serviceEnvironmentConfig, userAgent);
+            try (m) {
+                m.checkAccountState();
+            } catch (AuthorizationFailedException ignored) {
+                return true;
+            }
+
+            logger.debug("Account is still successfully linked.");
+            return false;
         }
     }
 }

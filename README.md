@@ -5,6 +5,13 @@ To be able to link to an existing Signal-Android/signal-cli instance, signal-cli
 For registering you need a phone number where you can receive SMS or incoming calls.
 signal-cli is primarily intended to be used on servers to notify admins of important events. For this use-case, it has a dbus interface ([man page](https://github.com/AsamK/signal-cli/blob/master/man/signal-cli-dbus.5.adoc)), that can be used to send messages from any programming language that has dbus bindings.
 
+
+## Differences from mainline
+
+Adds a stdio command as an alternative to the DBus interface. Send newline-delimited json to stdin to run commands. The format is e.g. `{"command": "send", "message": "hi", "recipient": ["+15555555555"]}`. Every CLI command is supported; check the command's --help or source for what the argument names should be.
+
+updateGroup emits json with the group id, name, and members.
+
 ## Installation
 
 You can [build signal-cli](#building) yourself, or use the [provided binary files](https://github.com/AsamK/signal-cli/releases/latest), which should work on Linux, macOS and Windows. For Arch Linux there is also a [package in AUR](https://aur.archlinux.org/packages/signal-cli/) and there is a [FreeBSD port](https://www.freshports.org/net-im/signal-cli) available as well.
@@ -13,7 +20,7 @@ System requirements:
 - at least Java Runtime Environment (JRE) 11
 - native libraries: libzkgroup, libsignal-client
 
-  Those are bundled for x86_64 Linux, for other systems/architectures see: [Provide native lib for libsignal](https://github.com/AsamK/signal-cli/wiki/Provide-native-lib-for-libsignal)
+  Those are bundled for x86_64 Linux (with recent enough glibc, see #643), for other systems/architectures see: [Provide native lib for libsignal](https://github.com/AsamK/signal-cli/wiki/Provide-native-lib-for-libsignal)
 
 ### Install system-wide on Linux
 See [latest version](https://github.com/AsamK/signal-cli/releases).
@@ -36,8 +43,10 @@ Important: The USERNAME is your phone number in international format and must in
 * Register a number (with SMS verification)
 
         signal-cli -u USERNAME register
-        
-  You can register Signal using a land line number. In this case you can skip SMS verification process and jump directly to the voice call verification by adding the --voice switch at the end of above register command.
+
+  You can register Signal using a land line number. In this case you can skip SMS verification process and jump directly to the voice call verification by adding the `--voice` switch at the end of above register command.
+
+  Registering may require solving a CAPTCHA challenge: [Registration with captcha](https://github.com/AsamK/signal-cli/wiki/Registration-with-captcha)
 
 * Verify the number using the code received via SMS or voice, optionally add `--pin PIN_CODE` if you've added a pin code to your account
 
@@ -50,22 +59,24 @@ Important: The USERNAME is your phone number in international format and must in
 * Pipe the message content from another process.
 
         uname -a | signal-cli -u USERNAME send RECIPIENT
-        
+
 * Receive messages
 
         signal-cli -u USERNAME receive
 
+**Hint**: The Signal protocol expects that incoming messages are regularly received (using `daemon` or `receive` command).
+This is required for the encryption to work efficiently and for getting updates to groups, expiration timer and other features.
 
 ## Storage
 
 The password and cryptographic keys are created when registering and stored in the current users home directory:
 
-`$XDG_DATA_HOME/signal-cli/data/` (`$HOME/.local/share/signal-cli/data/`)
+        $XDG_DATA_HOME/signal-cli/data/
+        $HOME/.local/share/signal-cli/data/
 
 For legacy users, the old config directories are used as a fallback:
 
         $HOME/.config/signal/data/
-
         $HOME/.config/textsecure/data/
 
 ## Building
@@ -99,11 +110,11 @@ This is still experimental and will not work in all situations.
 3. Execute Gradle:
 
         ./gradlew assembleNativeImage
-  
+
    The binary is available at *build/native-image/signal-cli*
 
-## Troubleshooting
-If you use a version of the Oracle JRE and get an InvalidKeyException you need to enable unlimited strength crypto. See https://stackoverflow.com/questions/6481627/java-security-illegal-key-size-or-default-parameters for instructions.
+## FAQ and Troubleshooting
+For frequently asked questions and issues have a look at the [wiki](https://github.com/AsamK/signal-cli/wiki/FAQ)
 
 ## License
 

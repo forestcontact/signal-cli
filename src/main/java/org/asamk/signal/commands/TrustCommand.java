@@ -16,6 +16,7 @@ public class TrustCommand implements LocalCommand {
 
     @Override
     public void attachToSubparser(final Subparser subparser) {
+        subparser.help("Set the trust level of a given number.");
         subparser.addArgument("number").help("Specify the phone number, for which to set the trust.").required(true);
         var mutTrust = subparser.addMutuallyExclusiveGroup();
         mutTrust.addArgument("-a", "--trust-all-known-keys")
@@ -28,13 +29,18 @@ public class TrustCommand implements LocalCommand {
     @Override
     public void handleCommand(final Namespace ns, final Manager m) throws CommandException {
         var number = ns.getString("number");
-        if (ns.getBoolean("trust_all_known_keys")) {
-            var res = m.trustIdentityAllKeys(number);
+        if (ns.getBoolean("trust-all-known-keys")) {
+            boolean res;
+            try {
+                res = m.trustIdentityAllKeys(number);
+            } catch (InvalidNumberException e) {
+                throw new UserErrorException("Failed to parse recipient: " + e.getMessage());
+            }
             if (!res) {
                 throw new UserErrorException("Failed to set the trust for this number, make sure the number is correct.");
             }
         } else {
-            var safetyNumber = ns.getString("verified_safety_number");
+            var safetyNumber = ns.getString("verified-safety-number");
             if (safetyNumber != null) {
                 safetyNumber = safetyNumber.replaceAll(" ", "");
                 if (safetyNumber.length() == 66) {

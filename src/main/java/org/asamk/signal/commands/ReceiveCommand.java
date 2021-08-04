@@ -27,16 +27,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static org.asamk.signal.util.ErrorUtils.handleAssertionError;
-
 public class ReceiveCommand implements ExtendedDbusCommand, LocalCommand {
 
     private final static Logger logger = LoggerFactory.getLogger(ReceiveCommand.class);
 
     @Override
     public void attachToSubparser(final Subparser subparser) {
+        subparser.help("Query the server for new messages.");
         subparser.addArgument("-t", "--timeout")
                 .type(double.class)
+                .setDefault(3.0)
                 .help("Number of seconds to wait for new messages (negative values disable timeout)");
         subparser.addArgument("--ignore-attachments")
                 .help("Don’t download attachments of received messages.")
@@ -65,19 +65,19 @@ public class ReceiveCommand implements ExtendedDbusCommand, LocalCommand {
             if (inJson) {
                 final var jsonWriter = new JsonWriter(System.out);
 
-                dbusconnection.addSigHandler(Signal.MessageReceived.class, messageReceived -> {
+                dbusconnection.addSigHandler(Signal.MessageReceived.class, signal, messageReceived -> {
                     var envelope = new JsonMessageEnvelope(messageReceived);
                     final var object = Map.of("envelope", envelope);
                     jsonWriter.write(object);
                 });
 
-                dbusconnection.addSigHandler(Signal.ReceiptReceived.class, receiptReceived -> {
+                dbusconnection.addSigHandler(Signal.ReceiptReceived.class, signal, receiptReceived -> {
                     var envelope = new JsonMessageEnvelope(receiptReceived);
                     final var object = Map.of("envelope", envelope);
                     jsonWriter.write(object);
                 });
 
-                dbusconnection.addSigHandler(Signal.SyncMessageReceived.class, syncReceived -> {
+                dbusconnection.addSigHandler(Signal.SyncMessageReceived.class, signal, syncReceived -> {
                     var envelope = new JsonMessageEnvelope(syncReceived);
                     final var object = Map.of("envelope", envelope);
                     jsonWriter.write(object);
@@ -85,7 +85,7 @@ public class ReceiveCommand implements ExtendedDbusCommand, LocalCommand {
             } else {
                 final var writer = new PlainTextWriterImpl(System.out);
 
-                dbusconnection.addSigHandler(Signal.MessageReceived.class, messageReceived -> {
+                dbusconnection.addSigHandler(Signal.MessageReceived.class, signal, messageReceived -> {
                     writer.println("Envelope from: {}", messageReceived.getSender());
                     writer.println("Timestamp: {}", DateUtils.formatTimestamp(messageReceived.getTimestamp()));
                     writer.println("Body: {}", messageReceived.getMessage());
@@ -103,12 +103,12 @@ public class ReceiveCommand implements ExtendedDbusCommand, LocalCommand {
                     writer.println();
                 });
 
-                dbusconnection.addSigHandler(Signal.ReceiptReceived.class, receiptReceived -> {
+                dbusconnection.addSigHandler(Signal.ReceiptReceived.class, signal, receiptReceived -> {
                     writer.println("Receipt from: {}", receiptReceived.getSender());
                     writer.println("Timestamp: {}", DateUtils.formatTimestamp(receiptReceived.getTimestamp()));
                 });
 
-                dbusconnection.addSigHandler(Signal.SyncMessageReceived.class, syncReceived -> {
+                dbusconnection.addSigHandler(Signal.SyncMessageReceived.class, signal, syncReceived -> {
                     writer.println("Sync Envelope from: {} to: {}",
                             syncReceived.getSource(),
                             syncReceived.getDestination());
@@ -150,16 +150,13 @@ public class ReceiveCommand implements ExtendedDbusCommand, LocalCommand {
             logger.warn("\"--json\" option has been deprecated, please use the global \"--output=json\" instead.");
         }
 
-        double timeout = 5;
-        if (ns.getDouble("timeout") != null) {
-            timeout = ns.getDouble("timeout");
-        }
+        double timeout = ns.getDouble("timeout");
         var returnOnTimeout = true;
         if (timeout < 0) {
             returnOnTimeout = false;
             timeout = 3600;
         }
-        boolean ignoreAttachments = ns.getBoolean("ignore_attachments");
+        boolean ignoreAttachments = ns.getBoolean("ignore-attachments");
         try {
             final var handler = inJson ? new JsonReceiveMessageHandler(m) : new ReceiveMessageHandler(m);
             m.receiveMessages((long) (timeout * 1000),
@@ -169,9 +166,6 @@ public class ReceiveCommand implements ExtendedDbusCommand, LocalCommand {
                     handler);
         } catch (IOException e) {
             throw new IOErrorException("Error while receiving messages: " + e.getMessage());
-        } catch (AssertionError e) {
-            handleAssertionError(e);
-            throw e;
         }
     }
 }

@@ -2,6 +2,59 @@
 
 ## [Unreleased]
 
+## [0.8.4.1] - 2021-06-20
+### Fixed
+- Incorrect error handling in register command
+
+## [0.8.4] - 2021-06-13
+**Attention**: Now requires native libsignal-client version 0.8.1
+
+### Added
+- New parameters for `updateGroup` command for group v2 features:
+  `--description`, `--remove-member`, `--admin`, `--remove-admin`, `--reset-link`, `--link`, `--set-permission-add-member`, `--set-permission-edit-details`, `--expiration`
+- New `--admin` parameter for `quitGroup` to set an admin before leaving the group
+- New `--delete` parameter for `quitGroup`, to delete the local group data
+- New 'sendTyping' command to send typing indicators
+
+### Fixed
+- Fixed issue that prevented registration with invalid locales
+- Prevent last admin of a group from leaving the group
+- All commands now show a short description with `--help`
+- Now a hint is shown if messages aren't received regularly
+- Group edit conflicts are now resolved automatically
+
+## [0.8.3] - 2021-05-13
+
+### Fixed
+- Upgrading from account files with older profiles
+- Building native image with graalvm
+
+## [0.8.2] - 2021-05-11
+### Added
+- A manual page for the DBus interface (Thanks @bublath, @exquo)
+- Remote message delete command (Thanks @adaptivegarage)
+- sendSyncRequest command to request complete contact/group list from master device
+- New `--delete-account` argument for unregister (Dangerous)
+- New `--family-name` argument for updateProfile
+
+### Fixed
+- Sending reaction to group (Thanks @adaptivegarage)
+- Displaying of address for messages from untrusted identities
+- Handling of recipient number or uuid changes (e.g. after account deletions)
+- Only respond to sync requests from master device
+- Display of quit group messages
+
+### Changed
+- Unlimited strength crypto is now enabled automatically for JREs that require it (Thanks @i-infra)
+- Only one identity key is stored per recipient and updated from profile (to match app behavior)
+- updateContact, block and unblock are now disabled for linked devices
+- After registering an empty profile is created so new groups can be joined immediately
+- If message decryption fails due to a broken session, the session is automatically renewed
+- Rework account storage for better reliability
+- Improved device linking flow
+  - Allow relinking existing account
+  - Encrypt/Decrypt device names
+
 ## [0.8.1] - 2021-03-02
 ### Added
 - New dbus commands: updateProfile, listNumbers, getContactNumber, quitGroup, isContactBlocked, isGroupBlocked, isMember, joinGroup (Thanks @bublath)
