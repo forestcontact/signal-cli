@@ -98,10 +98,8 @@ public class SendCommand implements DbusCommand {
             }
 
             try {
-
                 var timestamp = signal.sendGroupMessage(messageText, attachments, groupId);
                 writer.println("{}", timestamp);
-                // this needs to return json
                 return;
             } catch (DBusExecutionException e) {
                 throw new UnexpectedErrorException("Failed to send group message: " + e.getMessage());
@@ -122,7 +120,7 @@ public class SendCommand implements DbusCommand {
 
         try {
             var timestamp = signal.sendMessage(messageText, attachments, recipients);
-            writer.println("{}", timestamp); // needs to offer json dict?
+            writer.println("{}", timestamp);
         } catch (UnknownObject e) {
             throw new UserErrorException("Failed to find dbus object, maybe missing the -u flag: " + e.getMessage());
         } catch (Signal.Error.UntrustedIdentity e) {

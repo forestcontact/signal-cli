@@ -487,13 +487,6 @@
   "allDeclaredConstructors":true
 },
 {
-  "name":"org.asamk.signal.manager.storage.contacts.LegacyJsonContactsStore",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true,
-  "allDeclaredConstructors":true,
-  "fields":[{"name":"contacts", "allowWrite":true}]
-},
-{
   "name":"org.asamk.signal.manager.storage.groups.GroupInfo",
   "allDeclaredFields":true,
   "allDeclaredMethods":true
@@ -544,6 +537,13 @@
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true
+},
+{
+  "name":"org.asamk.signal.manager.storage.contacts.LegacyJsonContactsStore",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true,
+  "fields":[{"name":"contacts", "allowWrite":true}]
 },
 {
   "name":"org.asamk.signal.manager.storage.profiles.LegacyProfileStore",
