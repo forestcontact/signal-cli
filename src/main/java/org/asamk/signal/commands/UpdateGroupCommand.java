@@ -104,7 +104,12 @@ public class UpdateGroupCommand implements DbusCommand, LocalCommand {
                         groupAvatar == null ? null : new File(groupAvatar));
                 ErrorUtils.handleTimestampAndSendMessageResults(writer, 0, results.second());
                 groupId = results.first();
-                writer.println("Created new group: \"{}\"", groupId.toBase64());
+                if (ns.get("output") == OutputType.JSON) {
+                    final var jsonWriter = new JsonWriter(System.out);
+                    jsonWriter.write(Map.of("group", encodedGroup, "members", groupMembers, "name", groupName));
+                } else {
+                    writer.println("Created new group: \"{}\"", encodedGroup);
+                }
                 groupName = null;
                 groupMembers = null;
                 groupAvatar = null;
