@@ -106,9 +106,9 @@ public class UpdateGroupCommand implements DbusCommand, LocalCommand {
                 groupId = results.first();
                 if (ns.get("output") == OutputType.JSON) {
                     final var jsonWriter = new JsonWriter(System.out);
-                    jsonWriter.write(Map.of("group", encodedGroup, "members", groupMembers, "name", groupName));
+                    jsonWriter.write(Map.of("group", groupId.toBase64(), "members", groupMembers, "name", groupName));
                 } else {
-                    writer.println("Created new group: \"{}\"", encodedGroup);
+                    writer.println("Created new group: \"{}\"", groupId.toBase64());
                 }
                 groupName = null;
                 groupMembers = null;
