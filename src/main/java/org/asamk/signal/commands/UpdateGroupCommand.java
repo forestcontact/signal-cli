@@ -73,7 +73,6 @@ public class UpdateGroupCommand implements DbusCommand, LocalCommand {
 
     @Override
     public void handleCommand(final Namespace ns, final Manager m) throws CommandException {
-        System.err.println("updateGroup manager");
         final var writer = new PlainTextWriterImpl(System.out);
         GroupId groupId = null;
         final var groupIdString = ns.getString("group");
@@ -105,11 +104,11 @@ public class UpdateGroupCommand implements DbusCommand, LocalCommand {
                         groupAvatar == null ? null : new File(groupAvatar));
                 ErrorUtils.handleTimestampAndSendMessageResults(writer, 0, results.second());
                 groupId = results.first();
-                if (ns.get("output") == OutputType.JSON) {
+                if (ns.get("output") == OutputType.PLAIN_TEXT) {
+                    writer.println("Created new group: \"{}\"", groupId.toBase64());
+                } else {
                     final var jsonWriter = new JsonWriter(System.out);
                     jsonWriter.write(Map.of("group", groupId.toBase64(), "members", groupMembers, "name", groupName));
-                } else {
-                    writer.println("Created new group: \"{}\"", groupId.toBase64());
                 }
                 groupName = null;
                 groupMembers = null;
@@ -152,7 +151,6 @@ public class UpdateGroupCommand implements DbusCommand, LocalCommand {
 
     @Override
     public void handleCommand(final Namespace ns, final Signal signal) throws CommandException {
-        System.err.println("updateGroup dbus");
         final var writer = new PlainTextWriterImpl(System.out);
         byte[] groupId = null;
         if (ns.getString("group") != null) {
@@ -185,11 +183,11 @@ public class UpdateGroupCommand implements DbusCommand, LocalCommand {
             var newGroupId = signal.updateGroup(groupId, groupName, groupMembers, groupAvatar);
             if (groupId.length != newGroupId.length) {
                 String encodedGroup = Base64.getEncoder().encodeToString(newGroupId);
-                if (ns.get("output") == OutputType.JSON) {
+                if (ns.get("output") == OutputType.PLAIN_TEXT) {
+                    writer.println("Created new group: \"{}\"", encodedGroup);
+                } else {
                     final var jsonWriter = new JsonWriter(System.out);
                     jsonWriter.write(Map.of("group", encodedGroup, "members", groupMembers, "name", groupName));
-                } else {
-                    writer.println("Created new group: \"{}\"", encodedGroup);
                 }
             }
         } catch (Signal.Error.AttachmentInvalid e) {
