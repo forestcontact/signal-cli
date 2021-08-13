@@ -73,6 +73,7 @@ public class UpdateGroupCommand implements DbusCommand, LocalCommand {
 
     @Override
     public void handleCommand(final Namespace ns, final Manager m) throws CommandException {
+        System.err.println("updateGroup manager");
         final var writer = new PlainTextWriterImpl(System.out);
         GroupId groupId = null;
         final var groupIdString = ns.getString("group");
@@ -151,6 +152,7 @@ public class UpdateGroupCommand implements DbusCommand, LocalCommand {
 
     @Override
     public void handleCommand(final Namespace ns, final Signal signal) throws CommandException {
+        System.err.println("updateGroup dbus");
         final var writer = new PlainTextWriterImpl(System.out);
         byte[] groupId = null;
         if (ns.getString("group") != null) {
