@@ -122,7 +122,7 @@ public class SendCommand implements DbusCommand {
 
         try {
             var timestamp = signal.sendMessage(messageText, attachments, recipients);
-            writer.println("{}", timestamp); // needs to offer json dict?
+            writer.println("{}", timestamp);
         } catch (UnknownObject e) {
             throw new UserErrorException("Failed to find dbus object, maybe missing the -u flag: " + e.getMessage());
         } catch (Signal.Error.UntrustedIdentity e) {
