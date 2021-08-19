@@ -57,6 +57,10 @@ class JsonDataMessage {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     final JsonGroupInfo groupInfo;
 
+    @JsonProperty
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    final JsonPayment payment;
+
     JsonDataMessage(SignalServiceDataMessage dataMessage, Manager m) {
         this.timestamp = dataMessage.getTimestamp();
         if (dataMessage.getGroupContext().isPresent()) {
@@ -111,6 +115,7 @@ class JsonDataMessage {
         } else {
             this.contacts = List.of();
         }
+        this.payment = dataMessage.getPayment().isPresent() ? new JsonPayment(dataMessage.getPayment().get()) : null;
     }
 
     public JsonDataMessage(Signal.MessageReceived messageReceived) {
@@ -125,6 +130,7 @@ class JsonDataMessage {
         mentions = null;
         sticker = null;
         contacts = null;
+        payment = null;
         attachments = messageReceived.getAttachments().stream().map(JsonAttachment::new).collect(Collectors.toList());
     }
 
@@ -140,6 +146,7 @@ class JsonDataMessage {
         mentions = null;
         sticker = null;
         contacts = null;
+        payment = null;
         attachments = messageReceived.getAttachments().stream().map(JsonAttachment::new).collect(Collectors.toList());
     }
 }
