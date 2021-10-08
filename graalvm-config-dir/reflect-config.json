@@ -463,6 +463,12 @@
   "allDeclaredConstructors":true
 },
 {
+  "name":"org.asamk.signal.json.JsonPayment",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
+},
+{
   "name":"org.asamk.signal.json.JsonQuote",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
@@ -1998,6 +2004,28 @@
   ]
 },
 {
+  "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$DataMessage$Payment",
+  "fields":[
+    {"name":"itemCase_"}, 
+    {"name":"item_"}
+  ]
+},
+{
+  "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$DataMessage$Payment$Notification",
+  "fields":[
+    {"name":"bitField0_"}, 
+    {"name":"note_"}, 
+    {"name":"transactionCase_"}, 
+    {"name":"transaction_"}
+  ]
+},
+{
+  "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$DataMessage$Payment$Notification$MobileCoin",
+  "fields":[
+    {"name":"bitField0_"}, 
+    {"name":"receipt_"}
+  ]
+},{
   "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$DataMessage$BodyRange",
   "fields":[
     {"name":"associatedValueCase_"}, 
