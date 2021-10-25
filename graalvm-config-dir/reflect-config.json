@@ -558,6 +558,12 @@
   "allDeclaredConstructors":true
 },
 {
+  "name": "org.asamk.signal.jsonrpc.JsonRpcReader",
+  "allDeclaredFields": true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
+},
+{
   "name":"org.asamk.signal.jsonrpc.JsonRpcRequest",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
@@ -571,6 +577,12 @@
 },
 {
   "name":"org.asamk.signal.jsonrpc.JsonRpcResponse$Error",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allDeclaredConstructors":true
+},
+{
+  "name":"org.asamk.signal.jsonrpc.JsonRpcSender",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
   "allDeclaredConstructors":true

@@ -64,3 +64,42 @@ tasks.withType<Jar> {
         )
     }
 }
+
+val assembleNativeImage by tasks.registering {
+    dependsOn("assemble")
+
+    var graalVMHome = ""
+    doFirst {
+        graalVMHome = System.getenv("GRAALVM_HOME")
+            ?: throw GradleException("Required GRAALVM_HOME environment variable not set.")
+    }
+
+    doLast {
+        val nativeBinaryOutputPath = "$buildDir/native-image"
+        val nativeBinaryName = "signal-cli"
+
+        mkdir(nativeBinaryOutputPath)
+
+        exec {
+            workingDir = File(".")
+            commandLine(
+                "$graalVMHome/bin/native-image",
+                "-H:Path=$nativeBinaryOutputPath",
+                "-H:Name=$nativeBinaryName",
+                "-H:JNIConfigurationFiles=graalvm-config-dir/jni-config.json",
+                "-H:DynamicProxyConfigurationFiles=graalvm-config-dir/proxy-config.json",
+                "-H:ResourceConfigurationFiles=graalvm-config-dir/resource-config.json",
+                "-H:ReflectionConfigurationFiles=graalvm-config-dir/reflect-config.json",
+                "--no-fallback",
+                "--allow-incomplete-classpath",
+                "--report-unsupported-elements-at-runtime",
+                "--enable-url-protocols=http,https",
+                "--enable-https",
+                "--enable-all-security-services",
+                "-cp",
+                sourceSets.main.get().runtimeClasspath.asPath,
+                application.mainClass.get()
+            )
+        }
+    }
+}
