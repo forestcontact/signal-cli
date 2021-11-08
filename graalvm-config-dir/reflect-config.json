@@ -1250,6 +1250,13 @@
   ]
 },
 {
+  "name":"org.signal.storageservice.protos.groups.local.DecryptedApproveMember",
+  "fields":[
+    {"name":"role_", "allowUnsafeAccess":true},
+    {"name":"uuid_", "allowUnsafeAccess":true}
+  ]
+},
+{
   "name":"org.signal.storageservice.protos.groups.local.DecryptedGroup",
   "fields":[
     {"name":"accessControl_", "allowUnsafeAccess":true}, 
