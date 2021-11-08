@@ -106,7 +106,8 @@ public record MessageEnvelope(
             Optional<Sticker> sticker,
             List<SharedContact> sharedContacts,
             List<Mention> mentions,
-            List<Preview> previews
+            List<Preview> previews,
+            Optional<Payment> payment
     ) {
 
         static Data from(
@@ -153,7 +154,11 @@ public record MessageEnvelope(
                             .transform(a -> a.stream()
                                     .map(preview -> Preview.from(preview, fileProvider))
                                     .collect(Collectors.toList()))
-                            .or(List.of()));
+                            .or(List.of()),
+                    Optional.ofNullable(dataMessage.getPayment()
+                            .transform(p->Payment.from(p))
+                            .orNull())
+            );
         }
 
         public record GroupContext(GroupId groupId, boolean isGroupUpdate, int revision) {
@@ -240,6 +245,16 @@ public record MessageEnvelope(
                         mention.getStart(),
                         mention.getLength());
             }
+        }
+
+        public record Payment(byte[] receipt, String note) {
+            static Payment from(SignalServiceDataMessage.Payment payment) {
+                return new Payment(
+                        payment.getPaymentNotification().get().getReceipt(),
+                        payment.getPaymentNotification().get().getNote()
+                );
+            }
+
         }
 
         public record Attachment(

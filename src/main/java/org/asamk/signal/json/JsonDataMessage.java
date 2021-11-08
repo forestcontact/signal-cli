@@ -20,8 +20,9 @@ record JsonDataMessage(
         @JsonInclude(JsonInclude.Include.NON_NULL) JsonSticker sticker,
         @JsonInclude(JsonInclude.Include.NON_NULL) JsonRemoteDelete remoteDelete,
         @JsonInclude(JsonInclude.Include.NON_NULL) List<JsonSharedContact> contacts,
-        @JsonInclude(JsonInclude.Include.NON_NULL) JsonGroupInfo groupInfo
-) {
+        @JsonInclude(JsonInclude.Include.NON_NULL) JsonGroupInfo groupInfo,
+        @JsonInclude(JsonInclude.Include.NON_NULL) JsonPayment payment
+        ) {
 
     static JsonDataMessage from(MessageEnvelope.Data dataMessage) {
         final var timestamp = dataMessage.timestamp();
@@ -49,6 +50,7 @@ record JsonDataMessage(
                 .stream()
                 .map(JsonSharedContact::from)
                 .collect(Collectors.toList()) : null;
+        final var payment = dataMessage;
         return new JsonDataMessage(timestamp,
                 message,
                 expiresInSeconds,
@@ -60,7 +62,8 @@ record JsonDataMessage(
                 sticker,
                 remoteDelete,
                 contacts,
-                groupInfo);
+                groupInfo,
+                payment);
     }
 
     static JsonDataMessage from(Signal.MessageReceived messageReceived) {
@@ -76,7 +79,8 @@ record JsonDataMessage(
                 null,
                 null,
                 null,
-                messageReceived.getGroupId().length > 0 ? JsonGroupInfo.from(messageReceived.getGroupId()) : null);
+                messageReceived.getGroupId().length > 0 ? JsonGroupInfo.from(messageReceived.getGroupId()) : null,
+                null);
     }
 
     static JsonDataMessage from(Signal.SyncMessageReceived messageReceived) {
@@ -92,6 +96,7 @@ record JsonDataMessage(
                 null,
                 null,
                 null,
-                messageReceived.getGroupId().length > 0 ? JsonGroupInfo.from(messageReceived.getGroupId()) : null);
+                messageReceived.getGroupId().length > 0 ? JsonGroupInfo.from(messageReceived.getGroupId()) : null,
+                null);
     }
 }
