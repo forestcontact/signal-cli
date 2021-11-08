@@ -1163,6 +1163,10 @@
   "fields":[{"name":"attributesAccess_", "allowUnsafeAccess":true}]
 },
 {
+  "name":"org.signal.storageservice.protos.groups.GroupChange$Actions$ModifyAvatarAction",
+  "fields":[{"name":"avatar_"}]
+},
+{
   "name":"org.signal.storageservice.protos.groups.GroupChange$Actions$ModifyDescriptionAction",
   "fields":[{"name":"description_", "allowUnsafeAccess":true}]
 },
@@ -1905,7 +1909,8 @@
     {"name":"bitField0_"}, 
     {"name":"receipt_"}
   ]
-},{
+},
+{
   "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$DataMessage$BodyRange",
   "fields":[
     {"name":"associatedValueCase_", "allowUnsafeAccess":true}, 
@@ -2015,6 +2020,15 @@
     {"name":"bodyRanges_", "allowUnsafeAccess":true}, 
     {"name":"id_", "allowUnsafeAccess":true}, 
     {"name":"text_", "allowUnsafeAccess":true}
+  ]
+},
+{
+  "name":"org.whispersystems.signalservice.internal.push.SignalServiceProtos$DataMessage$Quote$QuotedAttachment",
+  "fields":[
+    {"name":"bitField0_"}, 
+    {"name":"contentType_"}, 
+    {"name":"fileName_"}, 
+    {"name":"thumbnail_"}
   ]
 },
 {

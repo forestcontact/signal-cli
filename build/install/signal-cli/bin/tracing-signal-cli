@@ -180,6 +180,5 @@ save () {
 APP_ARGS=`save "$@"`
 
 # Collect all arguments for the java command, following the shell quoting and substitution rules
-eval set -- -agentpath:$HOME/forest/graalvm-ce-java11-21.2.0/lib/libnative-image-agent.so=config-output-dir=$HOME/forest/signal-cli/graalvm-config-dir  $DEFAULT_JVM_OPTS $JAVA_OPTS $SIGNAL_CLI_OPTS -classpath "\"$CLASSPATH\"" org.asamk.signal.Main "$APP_ARGS"
-
-exec "$JAVACMD" "$@"
+eval set -- $DEFAULT_JVM_OPTS $JAVA_OPTS $SIGNAL_CLI_OPTS -classpath "\"$CLASSPATH\"" org.asamk.signal.Main "$APP_ARGS"
+exec "$JAVACMD" -agentpath:$HOME/forest/graalvm-ce-java11-21.2.0/lib/libnative-image-agent.so=config-merge-dir=$HOME/forest/signal-cli/graalvm-config-dir/ "$@"
